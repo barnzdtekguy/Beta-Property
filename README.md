@@ -10,7 +10,7 @@ A responsive, buildless presentation website. Serve `dist/` with any static host
 - Preview is excluded from indexing.
 
 ## Assets
-Original client logo retained in `dist/assets/beta-logo.png`, displayed with CSS cropping of its whitespace.
+Original client logo retained in `dist/assets/beta-logo.png`; the site uses `dist/assets/beta-logo-transparent.png` with a transparent background.
 Illustrative photography: images.unsplash.com photo IDs 1600596542815-ffad4c1539a9, 1600585154340-be6161a56a0c, 1486406146926-c627a92ad1ab, 1600210492486-724fe5c67fb0 and 1600607687920-4e2a09cf159d.
 Typefaces: DM Sans and Manrope from Google Fonts, with system fallbacks.
 
