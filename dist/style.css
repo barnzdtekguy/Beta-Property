@@ -3,3 +3,5 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}.motion-ready .reveal{opacity:1;transform:none}}
 
 .header.is-scrolled{background:rgba(255,255,255,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:rgba(238,238,238,.72);box-shadow:0 8px 28px rgba(23,23,25,.08)}
+
+.search-fields input{border:0;background:transparent;color:var(--ink);width:100%;font-family:var(--body);font-size:12px;font-weight:500;letter-spacing:0;padding:0;min-height:24px;cursor:text}.search-fields input::placeholder{color:#858381;opacity:1}.search-fields input:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:2px}@media(max-width:560px){.search-fields input{font-size:10px}}
