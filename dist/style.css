@@ -13,3 +13,5 @@
 .service-arrow svg{width:18px;height:18px}
 
 .card-arrow svg{width:24px;height:24px}
+
+.arrow-icon.arrow-right{width:12px;height:12px;flex-basis:12px}.arrow-icon.arrow-right svg{width:12px;height:12px}
