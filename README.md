@@ -5,8 +5,8 @@ A responsive, buildless presentation website. Serve `dist/` with any static host
 ## Current scope
 - Complete animated homepage, mobile menu, accessible location tabs, property-category links and search navigation.
 - Marketing pages, including `/admin`, display Under Development. The separate `referral-admin/` project provides the realtor registration and admin portal using Next.js and Supabase.
-- The header and mobile menu include a realtor-registration link. Until the portal has a deployment URL, it opens a WhatsApp message to Beta Property. Set `realtorRegistrationUrl` in `dist/app.js` to the deployed portal URL to send applicants directly to the signup form.
-- The referral portal is outside `dist/` so its server-side code, local dependencies and environment settings are not published as static website files. It remains a separate Git project: deploy it as its own Next.js project and configure Supabase using `referral-admin/README.md`. Registration will not work until the portal is deployed and configured.
+- The header and mobile menu link directly to realtor registration at `/realtor/register` on the same domain. Vercel proxies `/realtor/*` to the separate Next.js portal deployment at `referral-admin-dashboard.vercel.app`.
+- The referral portal is outside `dist/` so its server-side code, local dependencies and environment settings are not published as static website files. It remains a separate Git project; deploy it to `referral-admin-dashboard.vercel.app` and set up Supabase using `referral-admin/README.md`. The proxy target currently has no deployment, so `/realtor/register` becomes live after that portal is deployed and the Supabase callback URL is configured.
 - Working WhatsApp destination is centralised in `dist/app.js`: +234 907 944 0776, supplied in the brief and pending business confirmation.
 - No fabricated listings, prices, credentials or testimonials. Unsplash architecture/interior images are illustrative, explicitly identified on the page.
 - Preview is excluded from indexing.
