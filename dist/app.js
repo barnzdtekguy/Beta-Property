@@ -1,7 +1,26 @@
 'use strict';
-const SITE={name:'Beta Property',whatsapp:'2349079440776',message:'Hello Beta Property, I would like to enquire about property opportunities in Lagos and Abuja.'};
+const SITE={name:'Beta Property',whatsapp:'2349079440776',message:'Hello Beta Property, I would like to enquire about property opportunities in Lagos and Abuja.',realtorRegistrationMessage:'Hello Beta Property, I would like to register as a realtor.',realtorRegistrationUrl:''};
+const realtorStyles=document.createElement('link');
+realtorStyles.rel='stylesheet';
+realtorStyles.href='/realtor.css';
+document.head.appendChild(realtorStyles);
 const whatsappUrl=`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(SITE.message)}`;
+const realtorRegistrationUrl=SITE.realtorRegistrationUrl||`https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(SITE.realtorRegistrationMessage)}`;
 document.querySelectorAll('.whatsapp-link').forEach(link=>{link.href=whatsappUrl;link.target='_blank';link.rel='noopener noreferrer';});
+const realtorCta=document.createElement('a');
+realtorCta.className='button red realtor-cta';
+realtorCta.href=realtorRegistrationUrl;
+realtorCta.target='_blank';
+realtorCta.rel='noopener noreferrer';
+realtorCta.textContent='Register as a realtor';
+document.querySelector('.header-actions').insertBefore(realtorCta,document.querySelector('.menu-toggle'));
+const mobileRealtorLink=document.createElement('a');
+mobileRealtorLink.className='realtor-mobile-link';
+mobileRealtorLink.href=realtorRegistrationUrl;
+mobileRealtorLink.target='_blank';
+mobileRealtorLink.rel='noopener noreferrer';
+mobileRealtorLink.textContent='Register as a realtor';
+document.getElementById('mobile-nav').appendChild(mobileRealtorLink);
 const path=window.location.pathname.replace(/\/+$/,'')||'/';
 const isHome=path==='/';
 if(!isHome){document.getElementById('homepage').hidden=true;document.getElementById('under-development').hidden=false;const titles={'about':'About us','services':'Our services','properties':'Properties','developments':'Developments','partners':'Partner with us','submit-property':'Submit a property','insights':'Insights','buying-guide':'Buying guide & FAQs','contact':'Contact','privacy':'Privacy notice','terms':'Terms of use','admin':'Administration'};const label=titles[path.split('/')[1]]||'Beta Property';document.getElementById('under-section').textContent=label.toUpperCase();document.title=`${label} — Under Development | Beta Property`;document.querySelectorAll('[aria-current]').forEach(el=>el.removeAttribute('aria-current'));}

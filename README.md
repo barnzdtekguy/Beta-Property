@@ -4,7 +4,9 @@ A responsive, buildless presentation website. Serve `dist/` with any static host
 
 ## Current scope
 - Complete animated homepage, mobile menu, accessible location tabs, property-category links and search navigation.
-- All secondary pages, including admin, display Under Development. No forms, CMS, login, database or backend are represented as completed.
+- Marketing pages, including `/admin`, display Under Development. The separate `referral-admin/` project provides the realtor registration and admin portal using Next.js and Supabase.
+- The header and mobile menu include a realtor-registration link. Until the portal has a deployment URL, it opens a WhatsApp message to Beta Property. Set `realtorRegistrationUrl` in `dist/app.js` to the deployed portal URL to send applicants directly to the signup form.
+- The referral portal is outside `dist/` so its server-side code, local dependencies and environment settings are not published as static website files. It remains a separate Git project: deploy it as its own Next.js project and configure Supabase using `referral-admin/README.md`. Registration will not work until the portal is deployed and configured.
 - Working WhatsApp destination is centralised in `dist/app.js`: +234 907 944 0776, supplied in the brief and pending business confirmation.
 - No fabricated listings, prices, credentials or testimonials. Unsplash architecture/interior images are illustrative, explicitly identified on the page.
 - Preview is excluded from indexing.
@@ -15,4 +17,4 @@ Illustrative photography: images.unsplash.com photo IDs 1600596542815-ffad4c1539
 Typefaces: DM Sans and Manrope from Google Fonts, with system fallbacks.
 
 ## Next phase
-Replace illustrative content with approved property media, approve homepage direction, confirm WhatsApp destination, then implement the full brief in the later functional build. Full build prompt is superseded for this presentation by the user's explicit homepage-only instruction.
+Deploy the realtor portal and confirm its public URL, configure its Supabase project, replace illustrative content with approved property media, and confirm the WhatsApp destination.
