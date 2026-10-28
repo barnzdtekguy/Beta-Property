@@ -1,14 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "outputDirectory": "dist",
-  "rewrites": [
-    {
-      "source": "/realtor",
-      "destination": "https://referral-admin-dashboard.vercel.app/realtor"
-    },
-    {
-      "source": "/realtor/:path*",
-      "destination": "https://referral-admin-dashboard.vercel.app/realtor/:path*"
-    }
-  ]
+  "framework": "nextjs"
 }
