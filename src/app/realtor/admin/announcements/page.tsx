@@ -78,7 +78,7 @@ export default async function AnnouncementsPage({
                 </div>
                 <p className="mt-1 text-sm text-text-muted whitespace-pre-line">{a.body}</p>
                 {a.admin?.full_name && (
-                  <p className="mt-1.5 text-xs text-text-faint">— {a.admin.full_name}</p>
+                  <p className="mt-1.5 text-xs text-text-faint">By {a.admin.full_name}</p>
                 )}
               </li>
             ))}

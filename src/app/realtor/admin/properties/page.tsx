@@ -155,7 +155,7 @@ export default async function AdminPropertiesPage({
                       </div>
                     </td>
                     <td className="px-4 py-4 text-text-muted">
-                      <p>{[property.neighborhood, property.city].filter(Boolean).join(', ') || '—'}</p>
+                      <p>{[property.neighborhood, property.city].filter(Boolean).join(', ') || '-'}</p>
                       <p className="mt-1 text-xs">{[property.state, property.country].filter(Boolean).join(', ')}</p>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-text">{formatPropertyPrice(property.price == null ? null : Number(property.price), property.currency, property.listing_type)}</td>

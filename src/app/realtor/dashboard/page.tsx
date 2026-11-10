@@ -174,7 +174,7 @@ export default async function RealtorDashboardPage() {
                     <StatusBadge status={lead.status} />
                   </td>
                   <td className="px-5 py-3 text-right tabular-nums">
-                    {lead.commission_amount != null ? formatCurrency(lead.commission_amount) : '—'}
+                    {lead.commission_amount != null ? formatCurrency(lead.commission_amount) : '-'}
                   </td>
                   <td className="px-5 py-3 text-right">
                     {lead.status === 'successful' && (
@@ -223,7 +223,7 @@ export default async function RealtorDashboardPage() {
                     {r.referred_user?.full_name ?? 'Pending signup'}
                   </td>
                   <td className="px-5 py-3 text-text-muted">
-                    {r.referred_user ? formatDate(r.referred_user.created_at) : '—'}
+                    {r.referred_user ? formatDate(r.referred_user.created_at) : '-'}
                   </td>
                   <td className="px-5 py-3">
                     <StatusBadge status={r.status} />
@@ -238,7 +238,7 @@ export default async function RealtorDashboardPage() {
               {directReferrals.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-5 py-10 text-center text-text-muted text-sm">
-                    Share your link above — anyone who registers through it shows up here.
+                    Share your link above. Anyone who registers through it will show up here.
                   </td>
                 </tr>
               )}
@@ -259,7 +259,7 @@ export default async function RealtorDashboardPage() {
                   <p className="text-sm text-text">
                     <span className="font-medium">{a.realtor?.full_name ?? 'Your referral'}</span> has
                     made a sale
-                    {a.lead?.property_type ? ` — ${PROPERTY_TYPE_LABELS[a.lead.property_type] ?? ''}` : ''}
+                    {a.lead?.property_type ? `, ${PROPERTY_TYPE_LABELS[a.lead.property_type] ?? ''}` : ''}
                   </p>
                   <p className="text-xs text-text-muted mt-0.5">{formatDateTime(a.created_at)}</p>
                 </div>
@@ -275,8 +275,7 @@ export default async function RealtorDashboardPage() {
           <div className="px-5 py-3 border-b border-border">
             <h2 className="font-display text-sm text-text">Earnings from your network</h2>
             <p className="text-xs text-text-muted mt-0.5">
-              Commission from people referred by someone you brought in — not your own direct
-              referrals.
+              You earn commission when people referred by someone you brought in make a sale.
             </p>
           </div>
           <div className="overflow-x-auto scrollbar-thin">
@@ -293,10 +292,10 @@ export default async function RealtorDashboardPage() {
                 {overrideEarnings.map((r: any) => (
                   <tr key={r.id} className="border-b border-border last:border-0">
                     <td className="px-5 py-3 font-medium text-text">
-                      {r.referred_user?.full_name ?? '—'}
+                      {r.referred_user?.full_name ?? '-'}
                     </td>
                     <td className="px-5 py-3 text-text-muted">
-                      {r.referred_user?.referred_via?.full_name ?? '—'}
+                      {r.referred_user?.referred_via?.full_name ?? '-'}
                     </td>
                     <td className="px-5 py-3 text-right tabular-nums">
                       {formatCurrency(r.commission_amount)}

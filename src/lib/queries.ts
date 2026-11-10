@@ -367,7 +367,7 @@ export async function getReferrals({
     commission_amount: r.commission_amount,
     commission_status: r.commission_status,
     created_at: r.created_at,
-    referrer_name: r.referrer?.full_name ?? '—',
+    referrer_name: r.referrer?.full_name ?? '-',
     referred_user_name: r.referred_user?.full_name ?? null,
   }));
 

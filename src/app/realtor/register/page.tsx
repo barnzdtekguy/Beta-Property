@@ -54,7 +54,7 @@ export default async function RegisterPage({
           </p>
           <p className="mt-4 text-white/50 text-sm leading-relaxed">
             Register in a minute, get your own referral link, and start
-            earning commission on every client — and every realtor — you
+            earning commission on every client and every realtor you
             bring in.
           </p>
         </div>
@@ -74,7 +74,7 @@ export default async function RegisterPage({
             {referrerName ? (
               <>You were invited by <span className="font-medium text-text">{referrerName}</span>.</>
             ) : (
-              "Takes about a minute — you'll get your referral link right after."
+              "Takes about a minute. You'll get your referral link right after."
             )}
           </p>
 

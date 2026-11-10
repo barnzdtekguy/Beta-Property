@@ -73,7 +73,7 @@ export function ImageManager({
       accepted.push({
         key: crypto.randomUUID(),
         file,
-        altText: `${propertyTitle} — ${file.name.replace(/\.[^.]+$/, '')}`.slice(0, 240),
+        altText: `${propertyTitle}, ${file.name.replace(/\.[^.]+$/, '')}`.slice(0, 240),
         url: URL.createObjectURL(file),
       });
     }
@@ -222,7 +222,7 @@ export function ImageManager({
       {items.length > 0 && (
         <div>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-medium text-text">Gallery order <span className="font-normal text-text-muted">— drag photos to reorder; the first image is the cover</span></p>
+            <p className="text-sm font-medium text-text">Gallery order <span className="font-normal text-text-muted">(drag photos to reorder; the first image is the cover)</span></p>
             {items.some((item) => item.file) && (
               <button type="button" disabled={uploading} onClick={uploadQueued} className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-60">
                 {uploading ? 'Uploading…' : `Upload ${items.filter((item) => item.file).length} ${items.filter((item) => item.file).length === 1 ? 'photo' : 'photos'}`}

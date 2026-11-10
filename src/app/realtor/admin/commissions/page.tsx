@@ -67,11 +67,11 @@ export default async function CommissionsPage({
                   <tr key={p.id} className="border-b border-border last:border-0 hover:bg-black/[0.015] transition">
                     <td className="px-5 py-3">
                       <Link href={portalPath(`/admin/users/${p.user?.id}`)} className="font-medium text-text hover:text-brand-dark">
-                        {p.user?.full_name ?? '—'}
+                        {p.user?.full_name ?? '-'}
                       </Link>
                     </td>
                     <td className="px-5 py-3 text-text-muted">
-                      {p.lead ? `Sale — ${p.lead.client_name}` : (p.method ?? 'Referral bonus')}
+                      {p.lead ? `Sale: ${p.lead.client_name}` : (p.method ?? 'Referral bonus')}
                     </td>
                     <td className="px-5 py-3 text-right tabular-nums">{formatCurrency(p.amount)}</td>
                     <td className="px-5 py-3 text-text-muted text-xs">
@@ -83,14 +83,14 @@ export default async function CommissionsPage({
                           </p>
                         </>
                       ) : (
-                        p.reference ?? '—'
+                        p.reference ?? '-'
                       )}
                     </td>
                     <td className="px-5 py-3">
                       <StatusBadge status={p.status} />
                     </td>
                     <td className="px-5 py-3 text-text-muted">
-                      {p.paid_at ? formatDate(p.paid_at) : '—'}
+                      {p.paid_at ? formatDate(p.paid_at) : '-'}
                     </td>
                     <td className="px-5 py-3">
                       {p.status === 'pending' && (

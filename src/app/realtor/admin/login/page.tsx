@@ -37,8 +37,8 @@ export default function AdminLoginPage({
             Every registration traces back to someone who brought them in.
           </p>
           <p className="mt-4 text-white/50 text-sm leading-relaxed">
-            Track realtors, referrals, and commissions in one place — built
-            to stay legible as the network grows.
+            Track realtors, referrals, and commissions in one place. The dashboard stays clear
+            as your network grows.
           </p>
         </div>
       </div>

@@ -41,7 +41,7 @@ if(!isHome){
     const titles={'about':'About us','services':'Our services','properties':'Properties','developments':'Developments','partners':'Partner with us','submit-property':'Submit a property','insights':'Insights','buying-guide':'Buying guide & FAQs','contact':'Contact','privacy':'Privacy notice','terms':'Terms of use','admin':'Administration'};
     const label=titles[path.split('/')[1]]||'Beta Property';
     document.getElementById('under-section').textContent=label.toUpperCase();
-    document.title=`${label} — Under Development | Beta Property`;
+    document.title=`${label} | Under Development | Beta Property`;
     document.querySelectorAll('[aria-current]').forEach(el=>el.removeAttribute('aria-current'));
   }
 }const menuButton=document.querySelector('.menu-toggle');const mobileNav=document.getElementById('mobile-nav');

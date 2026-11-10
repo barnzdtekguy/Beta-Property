@@ -32,7 +32,7 @@ export async function signIn(formData: FormData) {
     await recordFailedAttempt(email, !isUnconfirmed);
 
     const message = isUnconfirmed
-      ? 'Please confirm your email first — check your inbox for the link we sent.'
+      ? 'Please confirm your email first. Check your inbox for the link we sent.'
       : 'Incorrect email or password.';
     redirect(portalPath(`/login?error=${encodeURIComponent(message)}`));
   }

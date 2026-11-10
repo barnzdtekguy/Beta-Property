@@ -7,7 +7,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
-  title: 'Beta Property — A better address. A bolder future.',
+  title: 'Beta Property | A better address. A bolder future.',
   description:
     'Explore land, homes and property opportunities in Lagos and Abuja with Beta Property.',
   icons: {

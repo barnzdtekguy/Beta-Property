@@ -39,7 +39,7 @@ export default async function LeadsPage({
         <h1 className="font-display text-xl text-text">Submit a client</h1>
         <p className="mt-1 text-sm text-text-muted">
           Tell us about a client interested in buying from Beta Properties. We&apos;ll take it from
-          there — you&apos;ll see the outcome here once it&apos;s decided.
+          there. You&apos;ll see the outcome here once it&apos;s decided.
         </p>
 
         <form action={submitLead} className="mt-6 space-y-4">
@@ -163,7 +163,7 @@ export default async function LeadsPage({
                     <StatusBadge status={lead.status} />
                   </td>
                   <td className="px-5 py-3 text-right tabular-nums">
-                    {lead.commission_amount != null ? formatCurrency(lead.commission_amount) : '—'}
+                    {lead.commission_amount != null ? formatCurrency(lead.commission_amount) : '-'}
                   </td>
                   <td className="px-5 py-3 text-right">
                     {lead.status === 'successful' && (

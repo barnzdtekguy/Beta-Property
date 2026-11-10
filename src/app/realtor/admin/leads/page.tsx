@@ -71,13 +71,13 @@ export default async function LeadsPage({
                     <td className="px-5 py-3 text-text-muted">
                       {PROPERTY_TYPE_LABELS[lead.property_type] ?? lead.property_type}
                     </td>
-                    <td className="px-5 py-3 text-text-muted">{lead.realtor?.full_name ?? '—'}</td>
+                    <td className="px-5 py-3 text-text-muted">{lead.realtor?.full_name ?? '-'}</td>
                     <td className="px-5 py-3 text-text-muted">{formatDate(lead.created_at)}</td>
                     <td className="px-5 py-3">
                       <StatusBadge status={lead.status} />
                     </td>
                     <td className="px-5 py-3 text-right tabular-nums">
-                      {lead.commission_amount != null ? formatCurrency(lead.commission_amount) : '—'}
+                      {lead.commission_amount != null ? formatCurrency(lead.commission_amount) : '-'}
                     </td>
                   </tr>
                 ))}

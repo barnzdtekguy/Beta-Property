@@ -98,13 +98,13 @@ export default async function UsersPage({
                       </Link>
                     </td>
                     <td className="px-5 py-3 text-text-muted">{u.email}</td>
-                    <td className="px-5 py-3 text-text-muted">{u.phone ?? '—'}</td>
+                    <td className="px-5 py-3 text-text-muted">{u.phone ?? '-'}</td>
                     <td className="px-5 py-3">
                       <code className="font-mono text-xs bg-black/[0.03] px-1.5 py-0.5 rounded">
                         {u.referral_code}
                       </code>
                     </td>
-                    <td className="px-5 py-3 text-text-muted">{u.referred_by_name ?? '—'}</td>
+                    <td className="px-5 py-3 text-text-muted">{u.referred_by_name ?? '-'}</td>
                     <td className="px-5 py-3 text-right tabular-nums">{u.stats.completed_referrals}</td>
                     <td className="px-5 py-3 text-text-muted">{formatDate(u.created_at)}</td>
                     <td className="px-5 py-3">

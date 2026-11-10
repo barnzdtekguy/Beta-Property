@@ -54,11 +54,11 @@ export default async function LeadDetailPage({
 
           <div className="grid grid-cols-2 gap-4 text-sm">
             <Detail label="Phone" value={lead.client_phone} />
-            <Detail label="Email" value={lead.client_email ?? '—'} />
+            <Detail label="Email" value={lead.client_email ?? '-'} />
             <Detail label="Looking for" value={PROPERTY_TYPE_LABELS[lead.property_type] ?? lead.property_type} />
             <Detail label="Submitted" value={formatDateTime(lead.created_at)} />
-            <Detail label="Submitted by" value={lead.realtor?.full_name ?? '—'} />
-            <Detail label="Realtor contact" value={lead.realtor?.phone ?? lead.realtor?.email ?? '—'} />
+            <Detail label="Submitted by" value={lead.realtor?.full_name ?? '-'} />
+            <Detail label="Realtor contact" value={lead.realtor?.phone ?? lead.realtor?.email ?? '-'} />
           </div>
 
           {lead.property_details && (
@@ -73,7 +73,7 @@ export default async function LeadDetailPage({
               <p className="text-text-muted">
                 Decided {lead.decided_at ? formatDateTime(lead.decided_at) : ''}
                 {lead.status === 'successful' && lead.commission_amount != null && (
-                  <> — commission set at <span className="font-medium text-text">{formatCurrency(lead.commission_amount)}</span></>
+                  <>. Commission set at <span className="font-medium text-text">{formatCurrency(lead.commission_amount)}</span></>
                 )}
               </p>
               {lead.admin_notes && <p className="mt-1 text-text">{lead.admin_notes}</p>}

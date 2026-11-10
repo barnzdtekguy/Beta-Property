@@ -50,14 +50,14 @@ export default async function ApplyForPayoutPage({
       <div className="rounded-xl border border-border bg-card p-6 shadow-card">
         <h1 className="font-display text-xl text-text">Apply for commission</h1>
         <p className="mt-1 text-sm text-text-muted">
-          For the sale to <span className="font-medium text-text">{lead.client_name}</span> —{' '}
+          For the sale to <span className="font-medium text-text">{lead.client_name}</span>: {' '}
           <span className="font-medium text-text">{formatCurrency(lead.commission_amount ?? 0)}</span>{' '}
           commission.
         </p>
 
         {existing ? (
           <div className="mt-6 rounded-lg border border-border bg-black/[0.03] px-4 py-3 text-sm text-text-muted">
-            You&apos;ve already applied for this commission — status:{' '}
+            You&apos;ve already applied for this commission. Status: {' '}
             <span className="font-medium text-text capitalize">{existing.status}</span>.
           </div>
         ) : (

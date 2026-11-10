@@ -41,12 +41,12 @@ export default async function UserDetailPage({ params }: { params: { id: string 
             <p className="font-display text-lg text-text">{user.full_name}</p>
             <p className="text-sm text-text-muted">{user.email}</p>
           </div>
-          <Detail label="Phone" value={user.phone ?? '—'} />
+          <Detail label="Phone" value={user.phone ?? '-'} />
           <Detail
             label="Referral code"
             value={<code className="font-mono text-xs bg-black/[0.03] px-1.5 py-0.5 rounded">{user.referral_code}</code>}
           />
-          <Detail label="Referred by" value={(user as any).referrer?.full_name ?? '—'} />
+          <Detail label="Referred by" value={(user as any).referrer?.full_name ?? '-'} />
           <Detail label="Registered" value={formatDate(user.created_at)} />
           <StatusBadge status={user.status} />
         </div>
@@ -96,7 +96,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
                       )}
                     </td>
                     <td className="px-5 py-3 text-text-muted">
-                      {r.referred_user ? formatDate(r.referred_user.created_at) : '—'}
+                      {r.referred_user ? formatDate(r.referred_user.created_at) : '-'}
                     </td>
                     <td className="px-5 py-3">
                       <StatusBadge status={r.status} />
@@ -127,8 +127,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
             <div className="px-5 py-3 border-b border-border">
               <h2 className="font-display text-sm text-text">Earnings from their network</h2>
               <p className="text-xs text-text-muted mt-0.5">
-                Commission from people referred by someone {user.full_name} brought in — not direct
-                referrals of their own.
+                Commission from referrals made by people {user.full_name} brought into the network.
               </p>
             </div>
             <div className="overflow-x-auto scrollbar-thin">
@@ -154,7 +153,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
                             {r.referred_user.full_name}
                           </Link>
                         ) : (
-                          <span className="text-text-muted">—</span>
+                          <span className="text-text-muted">-</span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-text-muted">
@@ -166,7 +165,7 @@ export default async function UserDetailPage({ params }: { params: { id: string 
                             {r.referred_user.referred_via.full_name}
                           </Link>
                         ) : (
-                          '—'
+                          '-'
                         )}
                       </td>
                       <td className="px-5 py-3">

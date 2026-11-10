@@ -118,9 +118,9 @@ export function PropertyForm({
           </Field>
           <Field label="Currency" required>
             <select name="currency" required defaultValue={property?.currency ?? 'NGN'} className={inputClass}>
-              <option value="NGN">NGN — Nigerian naira</option>
-              <option value="USD">USD — US dollar</option>
-              <option value="GBP">GBP — British pound</option>
+              <option value="NGN">NGN: Nigerian naira</option>
+              <option value="USD">USD: US dollar</option>
+              <option value="GBP">GBP: British pound</option>
             </select>
           </Field>
           <label className="flex items-center gap-2 self-end rounded-lg border border-border px-3 py-3 text-sm text-text">
