@@ -8,7 +8,7 @@ export type PropertyFilters = {
   maxPrice?: string;
 };
 
-const PROPERTY_TYPES = ['land', 'house', 'apartment', 'commercial', 'other'];
+const PROPERTY_TYPES = ['land', 'house', 'duplex', 'apartment', 'commercial', 'other'];
 const LISTING_TYPES = ['sale', 'rent', 'lease'];
 
 type PropertyImage = { id: string; storage_path: string; alt_text: string; sort_order: number };
@@ -40,13 +40,17 @@ export async function getPublishedProperties(filters: PropertyFilters = {}) {
   let query = supabase
     .from('properties')
     .select(
-      'id, slug, title, description, property_type, listing_type, price, currency, city, state, bedrooms, bathrooms, area, area_unit, property_images(id, storage_path, alt_text, sort_order)'
+      'id, slug, title, description, property_type, listing_type, price, currency, negotiable, country, city, state, neighborhood, bedrooms, bathrooms, area, area_unit, property_images(id, storage_path, alt_text, sort_order)'
     )
     .eq('status', 'published')
+    .eq('availability_status', 'available')
     .order('published_at', { ascending: false });
 
   const location = filters.location?.trim();
-  if (location) query = query.ilike('city', `%${location}%`);
+  const safeLocation = location?.replace(/[^a-zA-Z0-9\s-]/g, ' ').replace(/\s+/g, ' ').slice(0, 80);
+  if (safeLocation) {
+    query = query.or(`city.ilike.%${safeLocation}%,state.ilike.%${safeLocation}%,neighborhood.ilike.%${safeLocation}%,country.ilike.%${safeLocation}%`);
+  }
 
   if (filters.type && PROPERTY_TYPES.includes(filters.type)) {
     query = query.eq('property_type', filters.type);
@@ -74,7 +78,7 @@ export async function getPublishedProperty(slug: string) {
   const { data, error } = await supabase
     .from('properties')
     .select(
-      'id, slug, title, description, property_type, listing_type, price, currency, address, city, state, bedrooms, bathrooms, area, area_unit, features, property_images(id, storage_path, alt_text, sort_order)'
+      'id, slug, title, description, property_type, listing_type, availability_status, price, currency, negotiable, address, country, neighborhood, city, state, bedrooms, bathrooms, toilets, parking_spaces, area, area_unit, land_size, land_size_unit, furnishing_status, property_condition, amenities, features, property_images(id, storage_path, alt_text, sort_order)'
     )
     .eq('slug', slug)
     .eq('status', 'published')

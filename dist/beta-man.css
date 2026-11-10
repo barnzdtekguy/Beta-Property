@@ -1,0 +1,36 @@
+.betaman-page{overflow:hidden;background:var(--paper)}
+.betaman-hero{display:grid;grid-template-columns:1.08fr .82fr;grid-template-areas:"copy artwork";align-items:center;gap:6%;min-height:650px;padding:78px 7%;color:#fff;background:radial-gradient(ellipse at 83% 38%,rgba(243,46,55,.18),transparent 34%),linear-gradient(120deg,#171719,#272626)}
+.betaman-hero-copy{grid-area:copy;position:relative;z-index:1;max-width:690px}
+.betaman-hero-copy .eyebrow{margin-bottom:20px}
+.betaman-role{display:inline-flex;margin:0 0 18px;padding:9px 13px;border:1px solid #ffffff30;border-radius:3px;color:#fff;font-size:11px;font-weight:600;letter-spacing:.3px}
+.betaman-hero h1{max-width:700px;margin:0 0 22px;font-family:var(--heading);font-size:clamp(45px,5.2vw,74px);font-weight:650;line-height:1.08;letter-spacing:-3.4px}
+.betaman-hero h1 em,.betaman-profile h2 em,.betaman-cta h2 em{font-family:Georgia,serif;font-weight:400;color:var(--red)}
+.betaman-intro{max-width:590px;margin:0 0 14px;color:#e3e3e0;font-size:14px;line-height:1.85}
+.betaman-intro-secondary{color:#bcbab9}
+.betaman-hero .button{margin-top:17px}
+.betaman-artwork{grid-area:artwork;width:min(100%,510px);justify-self:end;margin:0;padding:9px;border:1px solid #ffffff25;border-radius:7px;background:#fff;box-shadow:0 22px 75px #0005}
+.betaman-artwork img{width:100%;height:auto;object-fit:contain;border-radius:3px}
+.betaman-artwork figcaption{padding:10px 6px 3px;color:#6d6c6d;text-align:center;font-size:9px;letter-spacing:1.2px;text-transform:uppercase}
+.betaman-highlights{display:grid;grid-template-columns:repeat(4,1fr);gap:0;max-width:1320px;margin:0 auto;padding:36px 7%;border-bottom:1px solid var(--line)}
+.betaman-highlight{display:flex;min-width:0;flex-direction:column;gap:7px;padding:7px 22px;border-right:1px solid var(--line)}
+.betaman-highlight:first-child{padding-left:0}.betaman-highlight:last-child{border:0}
+.betaman-highlight strong{color:var(--red);font-family:var(--heading);font-size:28px;line-height:1;font-weight:700;letter-spacing:-1px}
+.betaman-highlight span{color:var(--muted);font-size:10px;line-height:1.5}
+.betaman-profile{display:grid;grid-template-columns:.72fr 1.28fr;gap:10%;align-items:start}
+.betaman-profile-heading h2{max-width:440px;font-size:clamp(34px,3.8vw,52px)}
+.betaman-instagram{display:inline-flex;align-items:center;gap:9px;margin-top:28px;color:var(--ink);font-size:11px;font-weight:650;line-height:1.6}
+.betaman-instagram span{display:grid;width:31px;height:31px;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--red);font-size:20px}
+.betaman-instagram b{color:var(--red);font-size:15px}
+.betaman-profile-copy{padding-top:10px}
+.betaman-profile-copy p{margin:0 0 20px;color:#5e5d5c;font-size:14px;line-height:1.95}
+.betaman-projects{overflow:hidden;background:#19191b;color:#fff}
+.betaman-projects-inner{display:grid;grid-template-columns:.9fr 1.1fr;align-items:center;gap:8%;max-width:1320px;margin:auto;padding:74px 7%}
+.betaman-projects h2{max-width:550px;font-size:clamp(30px,3.5vw,44px)}
+.betaman-projects ul{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0;padding:0;list-style:none}
+.betaman-projects li{padding:16px 17px;border:1px solid #ffffff24;border-radius:3px;color:#f2f0ef;font-size:12px;font-weight:550}
+.betaman-cta{display:flex;align-items:center;justify-content:space-between;gap:30px;max-width:1320px;margin:auto;padding:78px 7%}
+.betaman-cta .eyebrow{margin-bottom:15px}
+.betaman-cta h2{font-size:clamp(34px,4vw,50px)}
+.betaman-cta .button{flex-shrink:0}
+@media(max-width:900px){.betaman-hero{min-height:0;gap:5%;padding:68px 6%}.betaman-hero h1{font-size:clamp(42px,6vw,62px)}.betaman-artwork{width:min(100%,420px)}.betaman-profile{gap:7%}.betaman-projects-inner{gap:5%}}
+@media(max-width:700px){.betaman-hero{grid-template-columns:1fr;grid-template-areas:"artwork" "copy";gap:34px;padding:38px 6% 58px}.betaman-artwork{width:min(100%,440px);justify-self:center;padding:7px}.betaman-artwork figcaption{font-size:8px}.betaman-hero-copy{max-width:600px}.betaman-hero-copy .eyebrow{font-size:8px;letter-spacing:1.4px;margin-bottom:14px}.betaman-role{margin-bottom:15px;font-size:10px}.betaman-hero h1{font-size:clamp(39px,10vw,54px);letter-spacing:-2px;margin-bottom:17px}.betaman-intro{font-size:12px;line-height:1.8}.betaman-hero .button{margin-top:14px}.betaman-highlights{grid-template-columns:1fr 1fr;padding:24px 6%;gap:0}.betaman-highlight{padding:13px 16px;border-bottom:1px solid var(--line)}.betaman-highlight:first-child{padding-left:16px}.betaman-highlight:nth-child(2){border-right:0}.betaman-highlight:nth-child(3){border-bottom:0}.betaman-highlight:last-child{border-bottom:0}.betaman-highlight strong{font-size:25px}.betaman-highlight span{font-size:9px}.betaman-profile{grid-template-columns:1fr;gap:27px}.betaman-profile-heading h2{font-size:36px}.betaman-profile-copy{padding:0}.betaman-profile-copy p{font-size:12px;line-height:1.9;margin-bottom:16px}.betaman-projects-inner{grid-template-columns:1fr;gap:27px;padding:58px 7%}.betaman-projects h2{font-size:34px}.betaman-projects ul{gap:9px}.betaman-projects li{padding:13px 11px;font-size:10px}.betaman-cta{align-items:flex-start;flex-direction:column;padding:58px 7%}.betaman-cta h2{font-size:36px}.betaman-cta .button{width:100%}}

@@ -2,15 +2,18 @@ import { cn } from '@/lib/utils';
 
 const STYLES: Record<string, string> = {
   active: 'bg-success-soft text-success',
+  published: 'bg-success-soft text-success',
   completed: 'bg-success-soft text-success',
   paid: 'bg-success-soft text-success',
   pending: 'bg-amber-soft text-amber',
+  draft: 'bg-amber-soft text-amber',
   inactive: 'bg-black/5 text-text-muted',
   unpaid: 'bg-amber-soft text-amber',
   rejected: 'bg-danger-soft text-danger',
   suspended: 'bg-danger-soft text-danger',
   failed: 'bg-danger-soft text-danger',
   void: 'bg-black/5 text-text-muted',
+  archived: 'bg-black/5 text-text-muted',
   successful: 'bg-success-soft text-success',
   unsuccessful: 'bg-danger-soft text-danger',
 };

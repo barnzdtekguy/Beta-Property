@@ -4,14 +4,16 @@ import { portalPath } from '@/lib/paths';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { LayoutGrid, Users, Share2, Wallet, ClipboardList, Megaphone, Menu, X, Building2, MessageSquare } from 'lucide-react';
+import { LayoutGrid, Users, Share2, Wallet, ClipboardList, Megaphone, Menu, X, Building2, MessageSquare, MapPin, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 
 const NAV = [
   { href: portalPath('/admin'), label: 'Overview', icon: LayoutGrid },
   { href: portalPath('/admin/users'), label: 'Users', icon: Users },
-  { href: portalPath('/admin/properties'), label: 'Properties', icon: Building2 },
+  { href: portalPath('/admin/properties'), label: 'Property Management', icon: Building2 },
+  { href: portalPath('/admin/developments'), label: 'Developments', icon: MapPin },
+  { href: portalPath('/admin/insights'), label: 'Insights', icon: BookOpen },
   { href: portalPath('/admin/inquiries'), label: 'Inquiries', icon: MessageSquare },
   { href: portalPath('/admin/referrals'), label: 'Referrals', icon: Share2 },
   { href: portalPath('/admin/leads'), label: 'Leads', icon: ClipboardList },

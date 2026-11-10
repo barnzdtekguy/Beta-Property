@@ -30,8 +30,10 @@ configured Supabase project:
 2. Run `supabase/reset.sql` in the Supabase SQL Editor.
 3. Run `supabase/schema.sql`.
 4. Run `supabase/migrations/005_sales_payouts_announcements.sql`,
-   `supabase/migrations/006_email_verification_and_lockout.sql`, and
-   `supabase/migrations/007_real_estate_platform.sql`, in that order.
+   `supabase/migrations/006_email_verification_and_lockout.sql`,
+   `supabase/migrations/007_real_estate_platform.sql`,
+   `supabase/migrations/008_marketing_content.sql`, and
+   `supabase/migrations/009_property_management.sql`, in that order.
    The base `schema.sql` already includes the functionality from migrations
    002-004, so do not run those migrations again after the reset.
 5. In Supabase Authentication settings, enable email confirmations and set
@@ -71,8 +73,8 @@ callback URL.
 
 ## Current scope
 - Complete animated homepage, mobile menu, accessible location tabs, property-category links and search navigation.
-- Marketing pages, including `/admin`, display Under Development. The realtor registration and admin portal use Next.js and Supabase in this same app under `/realtor`.
-- Public `/properties` and `/contact` pages use the Supabase property and inquiry workflows. Admins can add, publish, archive, and assign properties; agents can view assigned listings and handle assigned inquiries.
+- The landing page, `/about`, and `/services` present marketing content. `/admin` redirects to the protected admin portal at `/realtor/admin`; admins can manage properties, developments, and insights there. Published developments and insights appear at `/developments` and `/insights`.
+- Public `/properties` and `/contact` pages use the Supabase property and inquiry workflows. Admins can create, edit, publish, archive, mark availability, manage images, and assign properties; agents can view assigned listings and handle assigned inquiries.
 - The header and mobile menu link directly to realtor registration at `/realtor/register`.
 - Working WhatsApp destination is centralised in `dist/app.js`: +234 907 944 0776, supplied in the brief and pending business confirmation.
 - No fabricated listings, prices, credentials or testimonials. Unsplash architecture/interior images are illustrative, explicitly identified on the page.

@@ -6,94 +6,169 @@ import { getCurrentAdmin } from '@/lib/queries';
 import { portalPath } from '@/lib/paths';
 import { createClient } from '@/lib/supabase/server';
 
-const TYPES = ['land', 'house', 'apartment', 'commercial', 'other'];
+const TYPES = ['land', 'house', 'duplex', 'apartment', 'commercial', 'other'];
 const LISTING_TYPES = ['sale', 'rent', 'lease'];
-const STATUSES = ['draft', 'pending_review', 'published', 'archived'];
-const MIME_EXTENSIONS: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
+const PUBLICATION_STATUSES = ['draft', 'published', 'archived'];
+const AVAILABILITY_STATUSES = ['available', 'sold', 'rented', 'leased'];
+const FURNISHING_STATUSES = ['unfurnished', 'partly_furnished', 'furnished'];
+const CONDITIONS = ['new', 'excellent', 'good', 'fair', 'needs_renovation', 'under_construction'];
+const AMENITIES = [
+  'Swimming Pool', 'Gym', 'Security', 'CCTV', 'Generator', '24/7 Electricity',
+  'Water Supply', 'Garden', 'Balcony', 'Fitted Kitchen', 'Air Conditioning', 'Parking Space',
+];
+const MAX_PROPERTY_IMAGES = 30;
+
+type PropertyFields = {
+  title: string;
+  slug: string;
+  description: string;
+  property_type: string;
+  listing_type: string;
+  price: number | null;
+  currency: string;
+  negotiable: boolean;
+  country: string;
+  state: string;
+  city: string;
+  neighborhood: string | null;
+  address: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  toilets: number | null;
+  parking_spaces: number | null;
+  area: number | null;
+  area_unit: string | null;
+  land_size: number | null;
+  land_size_unit: string | null;
+  furnishing_status: string | null;
+  property_condition: string | null;
+  amenities: string[];
+  features: string[];
 };
 
-function fail(message: string): never {
-  redirect(portalPath(`/admin/properties?error=${encodeURIComponent(message)}`));
+function fail(message: string, path = '/admin/properties'): never {
+  redirect(portalPath(`${path}?error=${encodeURIComponent(message)}`));
+}
+
+function normalizedSlug(value: string) {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function optionalNumber(value: FormDataEntryValue | null, integer = false) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return { value: null, valid: true };
+  const number = Number(raw);
+  const valid = Number.isFinite(number) && number >= 0 && (!integer || Number.isInteger(number));
+  return { value: valid ? number : null, valid };
+}
+
+function parsePropertyFields(formData: FormData): { fields: PropertyFields | null; error: string | null } {
+  const title = String(formData.get('title') ?? '').trim();
+  const typedSlug = String(formData.get('slug') ?? '').trim();
+  const description = String(formData.get('description') ?? '').trim();
+  const propertyType = String(formData.get('property_type') ?? '');
+  const listingType = String(formData.get('listing_type') ?? '');
+  const currency = String(formData.get('currency') ?? 'NGN').trim().toUpperCase();
+  const country = String(formData.get('country') ?? '').trim();
+  const state = String(formData.get('state') ?? '').trim();
+  const city = String(formData.get('city') ?? '').trim();
+  const neighborhood = String(formData.get('neighborhood') ?? '').trim();
+  const address = String(formData.get('address') ?? '').trim();
+  const rawPrice = String(formData.get('price') ?? '').trim();
+  const price = optionalNumber(rawPrice);
+  const bedrooms = optionalNumber(formData.get('bedrooms'), true);
+  const bathrooms = optionalNumber(formData.get('bathrooms'), true);
+  const toilets = optionalNumber(formData.get('toilets'), true);
+  const parkingSpaces = optionalNumber(formData.get('parking_spaces'), true);
+  const area = optionalNumber(formData.get('area'));
+  const landSize = optionalNumber(formData.get('land_size'));
+  const furnishing = String(formData.get('furnishing_status') ?? '').trim();
+  const condition = String(formData.get('property_condition') ?? '').trim();
+  const amenities = formData.getAll('amenities').map(String);
+  const features = String(formData.get('features') ?? '')
+    .split(/\r?\n/)
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .slice(0, 30);
+  const slug = normalizedSlug(typedSlug || title);
+
+  if (title.length < 3 || title.length > 180) return { fields: null, error: 'Enter a property title between 3 and 180 characters.' };
+  if (description.length < 20 || description.length > 12000) return { fields: null, error: 'Enter a property description between 20 and 12,000 characters.' };
+  if (!slug || slug.length > 180) return { fields: null, error: 'Enter a valid property URL slug.' };
+  if (!TYPES.includes(propertyType)) return { fields: null, error: 'Choose a valid property type.' };
+  if (!LISTING_TYPES.includes(listingType)) return { fields: null, error: 'Choose sale, rent, or lease.' };
+  if (!['NGN', 'USD', 'GBP'].includes(currency)) return { fields: null, error: 'Choose NGN, USD, or GBP as the currency.' };
+  if (!country || country.length > 80 || state.length > 120 || city.length < 2 || city.length > 120) {
+    return { fields: null, error: 'Enter a country and city, and check the state field.' };
+  }
+  if (neighborhood.length > 120 || address.length > 500) return { fields: null, error: 'Check the neighborhood and full address fields.' };
+  if (!price.valid || !bedrooms.valid || !bathrooms.valid || !toilets.valid || !parkingSpaces.valid || !area.valid || !landSize.valid) {
+    return { fields: null, error: 'Prices and property measurements must be non-negative numbers; room counts must be whole numbers.' };
+  }
+  if (furnishing && !FURNISHING_STATUSES.includes(furnishing)) return { fields: null, error: 'Choose a valid furnishing status.' };
+  if (condition && !CONDITIONS.includes(condition)) return { fields: null, error: 'Choose a valid property condition.' };
+  if (amenities.some((amenity) => !AMENITIES.includes(amenity))) return { fields: null, error: 'Choose valid amenities.' };
+
+  const value = (name: string) => String(formData.get(name) ?? '').trim() || null;
+  return {
+    error: null,
+    fields: {
+      title,
+      slug,
+      description,
+      property_type: propertyType,
+      listing_type: listingType,
+      price: price.value,
+      currency,
+      negotiable: formData.get('negotiable') === 'on',
+      country,
+      state,
+      city,
+      neighborhood: neighborhood || null,
+      address: address || null,
+      bedrooms: bedrooms.value,
+      bathrooms: bathrooms.value,
+      toilets: toilets.value,
+      parking_spaces: parkingSpaces.value,
+      area: area.value,
+      area_unit: value('area_unit'),
+      land_size: landSize.value,
+      land_size_unit: value('land_size_unit'),
+      furnishing_status: furnishing || null,
+      property_condition: condition || null,
+      amenities: [...new Set(amenities)],
+      features,
+    },
+  };
+}
+
+function revalidatePropertyPages(slug?: string | null) {
+  revalidatePath(portalPath('/admin/properties'));
+  revalidatePath('/properties');
+  if (slug) revalidatePath(`/properties/${slug}`);
 }
 
 export async function createProperty(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect(portalPath('/admin/login?error=not-authorized'));
 
-  const title = String(formData.get('title') ?? '').trim();
-  const description = String(formData.get('description') ?? '').trim();
-  const propertyType = String(formData.get('property_type') ?? '');
-  const listingType = String(formData.get('listing_type') ?? '');
-  const city = String(formData.get('city') ?? '').trim();
-  const currency = String(formData.get('currency') ?? '').trim().toUpperCase();
-  const rawSlug = String(formData.get('slug') ?? title)
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-  const priceValue = String(formData.get('price') ?? '').trim();
-  const price = priceValue ? Number(priceValue) : null;
-  const rawFeatures = String(formData.get('features') ?? '');
-  const features = rawFeatures.split(/\r?\n/).map((value) => value.trim()).filter(Boolean).slice(0, 30);
-  const images = formData.getAll('images').filter((file): file is File => file instanceof File && file.size > 0);
-  const imageAltText = String(formData.get('image_alt_text') ?? '').trim();
-  const bedroomsRaw = String(formData.get('bedrooms') ?? '').trim();
-  const bathroomsRaw = String(formData.get('bathrooms') ?? '').trim();
-  const areaRaw = String(formData.get('area') ?? '').trim();
-  const bedrooms = numericInteger(bedroomsRaw);
-  const bathrooms = numericInteger(bathroomsRaw);
-  const area = numericNonNegative(areaRaw);
+  const parsed = parsePropertyFields(formData);
+  if (!parsed.fields) fail(parsed.error ?? 'Check the property details.', '/admin/properties/new');
 
-  if (
-    title.length < 3 || title.length > 180 ||
-    description.length < 20 || description.length > 12000 ||
-    !rawSlug || rawSlug.length > 180 ||
-    !TYPES.includes(propertyType) ||
-    !LISTING_TYPES.includes(listingType) ||
-    city.length < 2 || city.length > 120 ||
-    !/^[A-Z]{3}$/.test(currency) ||
-    (price !== null && (!Number.isFinite(price) || price < 0))
-  ) {
-    fail('Check the property fields and try again.');
-  }
-  if (
-    (bedroomsRaw && bedrooms === null) ||
-    (bathroomsRaw && bathrooms === null) ||
-    (areaRaw && area === null)
-  ) {
-    fail('Bedrooms and bathrooms must be whole numbers; area must be a non-negative number.');
-  }
-  if (images.length > 10 || images.some((file) => file.size > 10 * 1024 * 1024 || !MIME_EXTENSIONS[file.type])) {
-    fail('Upload up to 10 JPEG, PNG, or WebP photos, each no larger than 10 MB.');
-  }
-  if (images.length && (imageAltText.length < 5 || imageAltText.length > 240)) {
-    fail('Provide a short, descriptive alt text for the property photos.');
-  }
-
+  const intent = String(formData.get('intent') ?? 'draft');
+  const status = intent === 'publish' ? 'published' : 'draft';
   const supabase = createClient();
   const { data: property, error } = await supabase
     .from('properties')
     .insert({
-      slug: rawSlug,
-      title,
-      description,
-      property_type: propertyType,
-      listing_type: listingType,
-      status: 'draft',
-      price,
-      currency,
-      address: String(formData.get('address') ?? '').trim() || null,
-      city,
-      state: String(formData.get('state') ?? '').trim() || null,
-      bedrooms,
-      bathrooms,
-      area,
-      area_unit: String(formData.get('area_unit') ?? '').trim() || null,
-      features,
+      ...parsed.fields,
+      status,
+      published_at: status === 'published' ? new Date().toISOString() : null,
       created_by: admin.id,
     })
     .select('id')
@@ -101,43 +176,50 @@ export async function createProperty(formData: FormData) {
 
   if (error || !property) {
     console.error('[createProperty] property insert failed:', error?.message ?? 'No property created');
-    fail(error?.code === '23505' ? 'That property slug is already in use.' : 'The property could not be saved.');
+    fail(error?.code === '23505' ? 'That property URL is already in use.' : 'The property could not be saved. Check that migration 009 has been applied.', '/admin/properties/new');
   }
 
-  const uploadedPaths: string[] = [];
-  for (const image of images) {
-    const storagePath = `${property.id}/${crypto.randomUUID()}.${MIME_EXTENSIONS[image.type]}`;
-    const { error: uploadError } = await supabase.storage
-      .from('property-images')
-      .upload(storagePath, image, { contentType: image.type, upsert: false });
+  revalidatePropertyPages(parsed.fields.slug);
+  redirect(portalPath(`/admin/properties/${property.id}?created=1`));
+}
 
-    if (uploadError) {
-      console.error('[createProperty] image upload failed:', uploadError.message);
-      if (uploadedPaths.length) await supabase.storage.from('property-images').remove(uploadedPaths);
-      fail('The property was saved as a draft, but an image upload failed. Retry after checking Storage permissions.');
-    }
-    uploadedPaths.push(storagePath);
+export async function updateProperty(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect(portalPath('/admin/login?error=not-authorized'));
+
+  const id = String(formData.get('property_id') ?? '');
+  if (!id) fail('Property not found.');
+  const path = `/admin/properties/${id}`;
+  const parsed = parsePropertyFields(formData);
+  if (!parsed.fields) fail(parsed.error ?? 'Check the property details.', path);
+
+  const supabase = createClient();
+  const { data: existing, error: lookupError } = await supabase
+    .from('properties')
+    .select('id, slug, status, published_at')
+    .eq('id', id)
+    .maybeSingle();
+  if (lookupError || !existing) fail('Property not found.', '/admin/properties');
+
+  const intent = String(formData.get('intent') ?? 'save');
+  const status = intent === 'publish' ? 'published' : intent === 'draft' ? 'draft' : existing.status;
+  const { error } = await supabase
+    .from('properties')
+    .update({
+      ...parsed.fields,
+      status,
+      published_at: status === 'published' ? existing.published_at ?? new Date().toISOString() : null,
+    })
+    .eq('id', id);
+
+  if (error) {
+    console.error('[updateProperty] property update failed:', error.message);
+    fail(error.code === '23505' ? 'That property URL is already in use.' : 'The property could not be updated. Check that migration 009 has been applied.', path);
   }
 
-  if (uploadedPaths.length) {
-    const { error: imageError } = await supabase.from('property_images').insert(
-      uploadedPaths.map((storagePath, sort_order) => ({
-        property_id: property.id,
-        storage_path: storagePath,
-        alt_text: imageAltText,
-        sort_order,
-      }))
-    );
-    if (imageError) {
-      console.error('[createProperty] image metadata insert failed:', imageError.message);
-      await supabase.storage.from('property-images').remove(uploadedPaths);
-      fail('The property was saved as a draft, but its image records could not be saved.');
-    }
-  }
-
-  revalidatePath(portalPath('/admin/properties'));
-  revalidatePath('/properties');
-  redirect(portalPath('/admin/properties?created=1'));
+  revalidatePropertyPages(existing.slug);
+  revalidatePropertyPages(parsed.fields.slug);
+  redirect(portalPath(`${path}?updated=1`));
 }
 
 export async function changePropertyStatus(formData: FormData) {
@@ -146,27 +228,200 @@ export async function changePropertyStatus(formData: FormData) {
 
   const id = String(formData.get('property_id') ?? '');
   const status = String(formData.get('status') ?? '');
-  if (!id || !STATUSES.includes(status)) fail('Invalid property status update.');
+  if (!id || !PUBLICATION_STATUSES.includes(status)) fail('Invalid property publication status.');
 
   const supabase = createClient();
-  const { data, error } = await supabase
+  const { data: property, error } = await supabase
     .from('properties')
-    .update({
-      status,
-      published_at: status === 'published' ? new Date().toISOString() : null,
-    })
+    .update({ status, published_at: status === 'published' ? new Date().toISOString() : null })
     .eq('id', id)
-    .select('id')
+    .select('id, slug')
     .maybeSingle();
 
-  if (error || !data) {
+  if (error || !property) {
     console.error('[changePropertyStatus] property update failed:', error?.message ?? 'No property updated');
-    fail('The property status could not be updated.');
+    fail('The property publication status could not be updated.');
   }
 
-  revalidatePath(portalPath('/admin/properties'));
-  revalidatePath('/properties');
+  revalidatePropertyPages(property.slug);
   redirect(portalPath('/admin/properties?updated=1'));
+}
+
+export async function changePropertyAvailability(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect(portalPath('/admin/login?error=not-authorized'));
+
+  const id = String(formData.get('property_id') ?? '');
+  const availability = String(formData.get('availability_status') ?? '');
+  if (!id || !AVAILABILITY_STATUSES.includes(availability)) fail('Invalid property availability status.');
+
+  const supabase = createClient();
+  const { data: property, error } = await supabase
+    .from('properties')
+    .update({ availability_status: availability })
+    .eq('id', id)
+    .select('id, slug')
+    .maybeSingle();
+
+  if (error || !property) {
+    console.error('[changePropertyAvailability] property update failed:', error?.message ?? 'No property updated');
+    fail('The property availability could not be updated. Check that migration 009 has been applied.');
+  }
+
+  revalidatePropertyPages(property.slug);
+  redirect(portalPath('/admin/properties?updated=1'));
+}
+
+export async function addPropertyImage(propertyId: string, storagePath: string, altText: string) {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+  if (!propertyId || !storagePath.startsWith(`${propertyId}/`) || storagePath.includes('..')) {
+    return { ok: false as const, error: 'Invalid image upload path.' };
+  }
+
+  const supabase = createClient();
+  const [{ data: property }, { count }] = await Promise.all([
+    supabase.from('properties').select('id, slug, title').eq('id', propertyId).maybeSingle(),
+    supabase.from('property_images').select('id', { count: 'exact', head: true }).eq('property_id', propertyId),
+  ]);
+  if (!property) return { ok: false as const, error: 'Property not found.' };
+  if ((count ?? 0) >= MAX_PROPERTY_IMAGES) return { ok: false as const, error: `A property can have up to ${MAX_PROPERTY_IMAGES} images.` };
+
+  const { data: lastImage } = await supabase
+    .from('property_images')
+    .select('sort_order')
+    .eq('property_id', propertyId)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const safeAlt = altText.trim().slice(0, 240) || `${property.title} property photo`;
+  const { data: image, error } = await supabase
+    .from('property_images')
+    .insert({
+      property_id: propertyId,
+      storage_path: storagePath,
+      alt_text: safeAlt,
+      sort_order: (lastImage?.sort_order ?? -1) + 1,
+    })
+    .select('id, property_id, storage_path, alt_text, sort_order, created_at')
+    .single();
+  if (error || !image) {
+    console.error('[addPropertyImage] image record insert failed:', error?.message ?? 'No image record created');
+    return { ok: false as const, error: 'The uploaded image could not be added to the property gallery.' };
+  }
+
+  revalidatePropertyPages(property.slug);
+  return { ok: true as const, image };
+}
+
+export async function updatePropertyImageAltText(propertyId: string, imageId: string, altText: string) {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+  const safeAlt = altText.trim();
+  if (safeAlt.length < 3 || safeAlt.length > 240) return { ok: false as const, error: 'Image descriptions must be 3–240 characters.' };
+
+  const supabase = createClient();
+  const { data: image, error } = await supabase
+    .from('property_images')
+    .update({ alt_text: safeAlt })
+    .eq('id', imageId)
+    .eq('property_id', propertyId)
+    .select('id')
+    .maybeSingle();
+  if (error || !image) return { ok: false as const, error: 'The image description could not be saved.' };
+  revalidatePath(portalPath(`/admin/properties/${propertyId}`));
+  return { ok: true as const };
+}
+
+export async function setPropertyImageOrder(propertyId: string, imageIds: string[]) {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+  if (!propertyId || new Set(imageIds).size !== imageIds.length) return { ok: false as const, error: 'The image order is invalid.' };
+
+  const supabase = createClient();
+  const { data: images, error: listError } = await supabase
+    .from('property_images')
+    .select('id')
+    .eq('property_id', propertyId);
+  if (listError || !images || images.length !== imageIds.length || images.some((image) => !imageIds.includes(image.id))) {
+    return { ok: false as const, error: 'The image gallery changed. Refresh and try again.' };
+  }
+
+  for (const [sortOrder, imageId] of imageIds.entries()) {
+    const { error } = await supabase
+      .from('property_images')
+      .update({ sort_order: sortOrder })
+      .eq('id', imageId)
+      .eq('property_id', propertyId);
+    if (error) return { ok: false as const, error: 'The image order could not be saved.' };
+  }
+  revalidatePath(portalPath(`/admin/properties/${propertyId}`));
+  return { ok: true as const };
+}
+
+export async function deletePropertyImage(propertyId: string, imageId: string) {
+  const admin = await getCurrentAdmin();
+  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+
+  const supabase = createClient();
+  const { data: image, error: lookupError } = await supabase
+    .from('property_images')
+    .select('id, storage_path')
+    .eq('id', imageId)
+    .eq('property_id', propertyId)
+    .maybeSingle();
+  if (lookupError || !image) return { ok: false as const, error: 'Image not found.' };
+
+  const { error: storageError } = await supabase.storage.from('property-images').remove([image.storage_path]);
+  if (storageError) {
+    console.error('[deletePropertyImage] storage deletion failed:', storageError.message);
+    return { ok: false as const, error: 'The image file could not be deleted from storage.' };
+  }
+  const { error: rowError } = await supabase.from('property_images').delete().eq('id', imageId).eq('property_id', propertyId);
+  if (rowError) {
+    console.error('[deletePropertyImage] image record deletion failed:', rowError.message);
+    return { ok: false as const, error: 'The image file was deleted, but its gallery record could not be removed.' };
+  }
+
+  const { data: remaining } = await supabase
+    .from('property_images')
+    .select('id')
+    .eq('property_id', propertyId)
+    .order('sort_order', { ascending: true });
+  if (remaining) await setPropertyImageOrder(propertyId, remaining.map((row) => row.id));
+  revalidatePath(portalPath(`/admin/properties/${propertyId}`));
+  return { ok: true as const };
+}
+
+export async function deleteProperty(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect(portalPath('/admin/login?error=not-authorized'));
+  const id = String(formData.get('property_id') ?? '');
+  if (!id) fail('Property not found.');
+
+  const supabase = createClient();
+  const [{ data: property, error: propertyError }, { data: images, error: imageError }] = await Promise.all([
+    supabase.from('properties').select('id, slug').eq('id', id).maybeSingle(),
+    supabase.from('property_images').select('storage_path').eq('property_id', id),
+  ]);
+  if (propertyError || imageError || !property) fail('The property could not be found.');
+
+  const paths = (images ?? []).map((image) => image.storage_path);
+  if (paths.length) {
+    const { error } = await supabase.storage.from('property-images').remove(paths);
+    if (error) {
+      console.error('[deleteProperty] storage cleanup failed:', error.message);
+      fail('The property was kept because its images could not be removed from storage.');
+    }
+  }
+
+  const { error } = await supabase.from('properties').delete().eq('id', id);
+  if (error) {
+    console.error('[deleteProperty] property deletion failed:', error.message);
+    fail('Property images were removed, but the property record could not be deleted. Retry the delete.');
+  }
+  revalidatePropertyPages(property.slug);
+  redirect(portalPath('/admin/properties?deleted=1'));
 }
 
 export async function assignPropertyToAgent(formData: FormData) {
@@ -220,16 +475,4 @@ export async function removePropertyAssignment(formData: FormData) {
   revalidatePath(portalPath('/admin/properties'));
   revalidatePath(portalPath('/dashboard'));
   redirect(portalPath('/admin/properties?updated=1'));
-}
-
-function numericNonNegative(value: FormDataEntryValue | null) {
-  const stringValue = String(value ?? '').trim();
-  if (!stringValue) return null;
-  const number = Number(stringValue);
-  return Number.isFinite(number) && number >= 0 ? number : null;
-}
-
-function numericInteger(value: FormDataEntryValue | null) {
-  const number = numericNonNegative(value);
-  return number !== null && Number.isInteger(number) ? number : null;
 }
