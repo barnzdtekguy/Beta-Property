@@ -18,6 +18,39 @@
   }
 }
 
+.public-brand-logo {
+  position: relative;
+  display: block;
+  width: 58px;
+  height: 72px;
+  flex: none;
+  overflow: hidden;
+}
+
+.public-brand-logo img {
+  position: absolute !important;
+  top: -56px;
+  left: -62px;
+  width: 180px !important;
+  height: 180px !important;
+  max-width: none;
+  object-fit: contain;
+}
+
+@media (max-width: 800px) {
+  .public-brand-logo {
+    width: 51px;
+    height: 63px;
+  }
+
+  .public-brand-logo img {
+    top: -49px;
+    left: -54px;
+    width: 158px !important;
+    height: 158px !important;
+  }
+}
+
 @layer utilities {
   .scrollbar-thin::-webkit-scrollbar {
     height: 6px;

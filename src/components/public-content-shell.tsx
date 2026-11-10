@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { PublicBrandLogo } from '@/components/public-brand-logo';
 
 export function PublicHeader() {
   return (
     <header className="border-b border-stone-200">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5">
-        <Link href="/" className="w-fit font-display text-lg font-semibold">Beta Property</Link>
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-2 sm:flex-row sm:items-center sm:justify-between sm:py-2">
+        <PublicBrandLogo />
         <nav className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:gap-x-6 sm:text-sm">
           <Link href="/properties" className="text-stone-600 hover:text-stone-950">Properties</Link>
           <Link href="/developments" className="text-stone-600 hover:text-stone-950">Developments</Link>

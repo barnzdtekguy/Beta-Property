@@ -1,20 +1,11 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import { PublicBrandLogo } from '@/components/public-brand-logo';
 
 export default function PropertySiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-stone-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[78px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
-        <Link href="/" aria-label="Beta Property home" className="flex items-center">
-          <Image
-            src="/assets/beta-logo-transparent.png"
-            alt="Beta Property"
-            width={58}
-            height={58}
-            priority
-            className="h-12 w-12 object-contain"
-          />
-        </Link>
+      <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 min-[801px]:h-[92px] sm:px-8 lg:px-12">
+        <PublicBrandLogo />
 
         <nav aria-label="Main navigation" className="hidden items-center gap-7 text-[12px] font-semibold md:flex">
           <Link href="/" className="text-stone-600 transition hover:text-[#171719]">Home</Link>
