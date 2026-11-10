@@ -29,7 +29,7 @@ export async function getPublishedContent(kind: MarketingContentKind) {
     .order('published_at', { ascending: false });
 
   if (error) throw error;
-  return (data ?? []) as MarketingContent[];
+  return (data ?? []) as unknown as MarketingContent[];
 }
 
 export async function getPublishedContentBySlug(kind: MarketingContentKind, slug: string) {
@@ -42,7 +42,7 @@ export async function getPublishedContentBySlug(kind: MarketingContentKind, slug
     .maybeSingle();
 
   if (error) throw error;
-  return (data ?? null) as MarketingContent | null;
+  return (data ?? null) as unknown as MarketingContent | null;
 }
 
 export function formatContentDate(value: string | null) {
