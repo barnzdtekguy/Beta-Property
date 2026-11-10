@@ -20,6 +20,14 @@ function slugify(value: string) {
     .replace(/^-|-$/g, '');
 }
 
+function isMissingDevelopmentImageColumn(error: { code?: string; message?: string } | null) {
+  if (!error) return false;
+  if (error.code === '42703' || error.code === 'PGRST204') return true;
+
+  const message = error.message?.toLowerCase() ?? '';
+  return message.includes('cover_image_path') && /does not exist|could not find|schema cache/.test(message);
+}
+
 function returnTo(kind: MarketingContentKind, query: string): never {
   redirect(`${portalPath(`/admin/${kind}`)}${query}`);
 }
@@ -60,20 +68,38 @@ export async function saveMarketingContent(formData: FormData) {
   }
 
   const supabase = createClient();
-  const values = kind === 'developments'
-    ? { title, slug, excerpt, content, location: location || null, cover_image_path: coverImagePath || null }
-    : { title, slug, excerpt, content, category };
-
   let previousCoverImagePath: string | null = null;
+  let hasCoverImageColumn = Boolean(coverImagePath);
   if (id && kind === 'developments') {
     const { data: existing, error: lookupError } = await supabase
       .from('developments')
       .select('id, cover_image_path')
       .eq('id', id)
       .maybeSingle();
-    if (lookupError || !existing) returnTo(kind, '?error=save-failed');
-    previousCoverImagePath = existing.cover_image_path;
+    if (isMissingDevelopmentImageColumn(lookupError)) {
+      hasCoverImageColumn = false;
+    } else if (lookupError || !existing) {
+      returnTo(kind, '?error=save-failed');
+    } else {
+      hasCoverImageColumn = true;
+      previousCoverImagePath = existing.cover_image_path;
+    }
   }
+
+  if (kind === 'developments' && coverImagePath && !hasCoverImageColumn) {
+    returnTo(kind, '?error=image-storage-not-ready');
+  }
+
+  const values = kind === 'developments'
+    ? {
+        title,
+        slug,
+        excerpt,
+        content,
+        location: location || null,
+        ...(hasCoverImageColumn ? { cover_image_path: coverImagePath || null } : {}),
+      }
+    : { title, slug, excerpt, content, category };
 
   const result = id
     ? await supabase

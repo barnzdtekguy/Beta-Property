@@ -4,7 +4,7 @@ import { Topbar } from '@/components/topbar';
 import { StatusBadge } from '@/components/status-badge';
 import { getCurrentAdmin } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
-import type { MarketingContentKind } from '@/lib/marketing-content';
+import { isMissingDevelopmentTableError, type MarketingContentKind } from '@/lib/marketing-content';
 import { changeMarketingContentStatus, saveMarketingContent } from '@/app/realtor/admin/content-actions';
 import { DevelopmentContentForm } from '@/components/admin/development-content-form';
 
@@ -27,8 +27,9 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
     supabase.from(kind).select('*').order('created_at', { ascending: false }),
     getCurrentAdmin(),
   ]);
-  if (error) throw error;
-  const contentEntries = await Promise.all((entries ?? []).map(async (entry: any) => {
+  const developmentTableMissing = isDevelopment && isMissingDevelopmentTableError(error);
+  if (error && !developmentTableMissing) throw error;
+  const contentEntries = await Promise.all((developmentTableMissing ? [] : entries ?? []).map(async (entry: any) => {
     if (!isDevelopment || !entry.cover_image_path) return entry;
     const { data } = await supabase.storage.from('development-images').createSignedUrl(entry.cover_image_path, 3600);
     return { ...entry, cover_image_url: data?.signedUrl ?? null };
@@ -37,14 +38,22 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
   const messages: Record<string, string> = {
     'check-fields': 'Check the title, summary, content, and any category or location fields.',
     'slug-taken': 'That URL slug is already in use. Choose a different one.',
-    'save-failed': `The ${isDevelopment ? 'development' : 'insight'} could not be saved.`,
+    'save-failed': isDevelopment
+      ? 'The development could not be saved. Check that migration 008 has been applied in Supabase.'
+      : 'The insight could not be saved.',
     'status-failed': 'The publishing status could not be updated.',
+    'image-storage-not-ready': 'Development image storage is not ready. Apply migration 010 in Supabase before uploading a cover image.',
   };
 
   return (
     <>
       <Topbar title={title} description={description} admin={admin} />
       <main className="space-y-6 p-4 sm:p-6 md:p-8">
+        {developmentTableMissing && (
+          <p role="alert" className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">
+            Development storage is not set up in Supabase yet. Apply migration 008 to create the table and migration 010 to enable cover images.
+          </p>
+        )}
         {searchParams.error && (
           <p role="alert" className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">
             {messages[searchParams.error] ?? 'The requested content action could not be completed.'}

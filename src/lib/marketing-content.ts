@@ -21,16 +21,45 @@ const contentSelect: Record<MarketingContentKind, string> = {
   insights: 'id, slug, title, excerpt, content, category, status, published_at, created_at',
 };
 
+function isMissingDevelopmentImageColumn(error: { code?: string; message?: string } | null) {
+  if (!error) return false;
+  if (error.code === '42703' || error.code === 'PGRST204') return true;
+
+  const message = error.message?.toLowerCase() ?? '';
+  return message.includes('cover_image_path') && /does not exist|could not find|schema cache/.test(message);
+}
+
+export function isMissingDevelopmentTableError(error: { code?: string; message?: string } | null) {
+  if (!error) return false;
+  if (error.code === '42P01' || error.code === 'PGRST205') return true;
+
+  const message = error.message?.toLowerCase() ?? '';
+  return message.includes('developments') && /does not exist|could not find|schema cache/.test(message);
+}
+
+async function queryPublishedContent(supabase: ReturnType<typeof createClient>, kind: MarketingContentKind, slug?: string) {
+  const query = (select: string) => {
+    const builder = supabase.from(kind).select(select).eq('status', 'published');
+    return slug ? builder.eq('slug', slug).maybeSingle() : builder.order('published_at', { ascending: false });
+  };
+
+  let result = await query(contentSelect[kind]);
+  if (kind === 'developments' && isMissingDevelopmentImageColumn(result.error)) {
+    const legacySelect = contentSelect.developments.replace(', cover_image_path', '');
+    result = await query(legacySelect);
+  }
+  return result;
+}
+
 export async function getPublishedContent(kind: MarketingContentKind) {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from(kind)
-    .select(contentSelect[kind])
-    .eq('status', 'published')
-    .order('published_at', { ascending: false });
+  const { data, error } = await queryPublishedContent(supabase, kind);
 
-  if (error) throw error;
-  const rows = data ?? [];
+  if (error) {
+    if (kind === 'developments' && isMissingDevelopmentTableError(error)) return [];
+    throw error;
+  }
+  const rows = (data ?? []) as any[];
   if (kind !== 'developments') return rows as unknown as MarketingContent[];
 
   return Promise.all(rows.map(async (row: any) => {
@@ -42,14 +71,12 @@ export async function getPublishedContent(kind: MarketingContentKind) {
 
 export async function getPublishedContentBySlug(kind: MarketingContentKind, slug: string) {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from(kind)
-    .select(contentSelect[kind])
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .maybeSingle();
+  const { data, error } = await queryPublishedContent(supabase, kind, slug);
 
-  if (error) throw error;
+  if (error) {
+    if (kind === 'developments' && isMissingDevelopmentTableError(error)) return null;
+    throw error;
+  }
   if (!data) return null;
   if (kind !== 'developments') return data as unknown as MarketingContent;
 
