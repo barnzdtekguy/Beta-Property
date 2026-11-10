@@ -137,8 +137,8 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Desktop sidebar — unchanged from before */}
-      <aside className="hidden md:flex w-60 shrink-0 flex-col bg-ink text-white/70 min-h-screen sticky top-0">
+      {/* Keep the desktop sidebar fixed while the dashboard content scrolls. */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-60 flex-col overflow-hidden bg-ink text-white/70 md:flex">
         <div className="flex items-center gap-2.5 px-6 h-16 border-b border-white/10">
           <Logo variant="icon" size={26} />
           <span className="font-display text-white font-medium tracking-tight text-sm leading-tight">

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { formatContentDate, getPublishedContentBySlug } from '@/lib/marketing-content';
 import { PublicFooter, PublicHeader } from '@/components/public-content-shell';
@@ -23,6 +24,11 @@ export default async function DevelopmentPage({ params }: { params: { slug: stri
         <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-red-700">Development{development.location ? ` · ${development.location}` : ''}</p>
         <h1 className="mt-3 font-display text-4xl font-semibold leading-tight sm:text-5xl">{development.title}</h1>
         <p className="mt-5 text-lg leading-8 text-stone-600">{development.excerpt}</p>
+        {development.cover_image_url && (
+          <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-2xl bg-stone-100">
+            <Image src={development.cover_image_url} alt={`${development.title} development`} fill unoptimized sizes="(max-width: 896px) 100vw, 896px" className="object-cover" />
+          </div>
+        )}
         <p className="mt-4 text-sm text-stone-500">Published {formatContentDate(development.published_at)}</p>
         <div className="mt-10 space-y-5 text-base leading-8 text-stone-700">
           {development.content.split(/\n\s*\n/).map((paragraph, index) => <p key={index} className="whitespace-pre-line">{paragraph}</p>)}

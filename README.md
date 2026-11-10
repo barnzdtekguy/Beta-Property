@@ -23,17 +23,18 @@ configured Supabase project:
 
 1. In Supabase, verify that you selected the intended project before running
    any SQL. `supabase/reset.sql` is destructive: it removes the application's
-   `public` tables, views, and functions, plus the `property-images` bucket
-   and its objects. It preserves Supabase Auth identities, extensions, and
-   other schemas. Existing Auth users will no longer have application rows;
+     `public` tables, views, and functions, plus the property and development
+     image buckets and their objects. It preserves Supabase Auth identities,
+     extensions, and other schemas. Existing Auth users will no longer have application rows;
    remove any such accounts separately in Supabase Auth only if desired.
 2. Run `supabase/reset.sql` in the Supabase SQL Editor.
 3. Run `supabase/schema.sql`.
 4. Run `supabase/migrations/005_sales_payouts_announcements.sql`,
    `supabase/migrations/006_email_verification_and_lockout.sql`,
    `supabase/migrations/007_real_estate_platform.sql`,
-   `supabase/migrations/008_marketing_content.sql`, and
-   `supabase/migrations/009_property_management.sql`, in that order.
+    `supabase/migrations/008_marketing_content.sql`,
+    `supabase/migrations/009_property_management.sql`, and
+    `supabase/migrations/010_development_images.sql`, in that order.
    The base `schema.sql` already includes the functionality from migrations
    002-004, so do not run those migrations again after the reset.
 5. In Supabase Authentication settings, enable email confirmations and set

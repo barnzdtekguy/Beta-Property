@@ -45,11 +45,15 @@ export async function saveMarketingContent(formData: FormData) {
   const content = String(formData.get('content') ?? '').trim();
   const location = String(formData.get('location') ?? '').trim();
   const category = String(formData.get('category') ?? '').trim();
+  const coverImagePath = String(formData.get('cover_image_path') ?? '').trim();
 
   if (
     title.length < 3 || title.length > 180 || !slug || slug.length > 180 ||
     excerpt.length < 10 || excerpt.length > 500 || content.length < 30 || content.length > 30000 ||
-    (kind === 'developments' && location.length > 160) ||
+    (kind === 'developments' && (
+      location.length > 160 ||
+      (coverImagePath !== '' && !/^developments\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(?:jpg|png|webp)$/i.test(coverImagePath))
+    )) ||
     (kind === 'insights' && (category.length < 2 || category.length > 80))
   ) {
     returnTo(kind, '?error=check-fields');
@@ -57,8 +61,19 @@ export async function saveMarketingContent(formData: FormData) {
 
   const supabase = createClient();
   const values = kind === 'developments'
-    ? { title, slug, excerpt, content, location: location || null }
+    ? { title, slug, excerpt, content, location: location || null, cover_image_path: coverImagePath || null }
     : { title, slug, excerpt, content, category };
+
+  let previousCoverImagePath: string | null = null;
+  if (id && kind === 'developments') {
+    const { data: existing, error: lookupError } = await supabase
+      .from('developments')
+      .select('id, cover_image_path')
+      .eq('id', id)
+      .maybeSingle();
+    if (lookupError || !existing) returnTo(kind, '?error=save-failed');
+    previousCoverImagePath = existing.cover_image_path;
+  }
 
   const result = id
     ? await supabase
@@ -83,6 +98,11 @@ export async function saveMarketingContent(formData: FormData) {
   if (result.error || !result.data) {
     console.error('[saveMarketingContent] save failed:', result.error?.message ?? 'No content saved');
     returnTo(kind, result.error?.code === '23505' ? '?error=slug-taken' : '?error=save-failed');
+  }
+
+  if (kind === 'developments' && previousCoverImagePath && previousCoverImagePath !== (coverImagePath || null)) {
+    const { error: removalError } = await supabase.storage.from('development-images').remove([previousCoverImagePath]);
+    if (removalError) console.error('[saveMarketingContent] old cover image cleanup failed:', removalError.message);
   }
 
   revalidateContent(kind, slug);

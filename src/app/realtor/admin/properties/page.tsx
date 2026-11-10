@@ -181,7 +181,7 @@ export default async function AdminPropertiesPage({
                     <td className="px-4 py-4">
                       <div className="flex min-w-28 flex-col items-start gap-2">
                         <Link href={portalPath(`/admin/properties/${property.id}`)} className="text-xs font-medium text-brand hover:underline">Edit</Link>
-                        <Link href={`${portalPath(`/admin/properties/${property.id}`)}#images`} className="text-xs text-brand hover:underline">Manage images</Link>
+                        <Link href={`${portalPath(`/admin/properties/${property.id}`)}#images`} className="text-xs text-brand hover:underline">Upload / manage photos</Link>
                         {property.status === 'published' ? (
                           <>
                             <Link href={`/properties/${property.slug}`} target="_blank" className="text-xs text-brand hover:underline">View ↗</Link>

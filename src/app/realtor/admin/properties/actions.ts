@@ -180,7 +180,7 @@ export async function createProperty(formData: FormData) {
   }
 
   revalidatePropertyPages(parsed.fields.slug);
-  redirect(portalPath(`/admin/properties/${property.id}?created=1`));
+  redirect(portalPath(`/admin/properties/${property.id}?created=1#images`));
 }
 
 export async function updateProperty(formData: FormData) {

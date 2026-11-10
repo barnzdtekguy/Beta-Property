@@ -10,7 +10,11 @@ export const metadata: Metadata = {
   title: 'Beta Property — A better address. A bolder future.',
   description:
     'Explore land, homes and property opportunities in Lagos and Abuja with Beta Property.',
-  icons: { icon: '/logo-icon.png' },
+  icons: {
+    icon: '/assets/beta-logo-transparent.png',
+    shortcut: '/assets/beta-logo-transparent.png',
+    apple: '/assets/beta-logo-transparent.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

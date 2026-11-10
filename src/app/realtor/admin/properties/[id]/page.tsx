@@ -45,6 +45,7 @@ export default async function EditPropertyPage({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link href={portalPath('/admin/properties')} className="text-sm text-text-muted hover:text-text">← Property Management</Link>
           <div className="flex items-center gap-3">
+            <Link href="#images" className="text-sm font-medium text-brand hover:underline">Manage property photos</Link>
             <StatusBadge status={property.status} />
             <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-medium capitalize text-text-muted">{String(property.availability_status).replace('_', ' ')}</span>
             {property.status === 'published' && <Link href={`/properties/${property.slug}`} target="_blank" className="text-sm font-medium text-brand hover:underline">View public page ↗</Link>}

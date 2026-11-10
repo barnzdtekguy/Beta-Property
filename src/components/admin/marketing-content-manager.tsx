@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Topbar } from '@/components/topbar';
 import { StatusBadge } from '@/components/status-badge';
 import { getCurrentAdmin } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import type { MarketingContentKind } from '@/lib/marketing-content';
 import { changeMarketingContentStatus, saveMarketingContent } from '@/app/realtor/admin/content-actions';
+import { DevelopmentContentForm } from '@/components/admin/development-content-form';
 
 const inputClass = 'mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2.5 text-sm text-text';
 
@@ -26,6 +28,11 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
     getCurrentAdmin(),
   ]);
   if (error) throw error;
+  const contentEntries = await Promise.all((entries ?? []).map(async (entry: any) => {
+    if (!isDevelopment || !entry.cover_image_path) return entry;
+    const { data } = await supabase.storage.from('development-images').createSignedUrl(entry.cover_image_path, 3600);
+    return { ...entry, cover_image_url: data?.signedUrl ?? null };
+  }));
 
   const messages: Record<string, string> = {
     'check-fields': 'Check the title, summary, content, and any category or location fields.',
@@ -63,28 +70,26 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
             <Link href={publicPath} target="_blank" className="text-sm font-medium text-brand hover:underline">View public page ↗</Link>
           </div>
 
-          <form action={saveMarketingContent} className="mt-5 grid gap-4 md:grid-cols-2">
-            <input type="hidden" name="content_type" value={kind} />
-            <Field label="Title"><input name="title" required minLength={3} maxLength={180} className={inputClass} /></Field>
-            <Field label="URL slug (optional)"><input name="slug" maxLength={180} placeholder="Generated from the title" className={inputClass} /></Field>
-            {isDevelopment ? (
-              <Field label="Location (optional)"><input name="location" maxLength={160} placeholder="e.g. Abuja, Nigeria" className={inputClass} /></Field>
-            ) : (
+          {isDevelopment ? <DevelopmentContentForm /> : (
+            <form action={saveMarketingContent} className="mt-5 grid gap-4 md:grid-cols-2">
+              <input type="hidden" name="content_type" value={kind} />
+              <Field label="Title"><input name="title" required minLength={3} maxLength={180} className={inputClass} /></Field>
+              <Field label="URL slug (optional)"><input name="slug" maxLength={180} placeholder="Generated from the title" className={inputClass} /></Field>
               <Field label="Category"><input name="category" required minLength={2} maxLength={80} defaultValue="Insights" className={inputClass} /></Field>
-            )}
-            <div className="md:col-span-2">
-              <Field label="Short summary"><textarea name="excerpt" required minLength={10} maxLength={500} rows={2} className={inputClass} placeholder="A concise introduction shown on the public listing page." /></Field>
-            </div>
-            <div className="md:col-span-2">
-              <Field label={isDevelopment ? 'Development details' : 'Article content'}><textarea name="content" required minLength={30} maxLength={30000} rows={8} className={inputClass} placeholder="Write the full story. Separate paragraphs with a blank line." /></Field>
-            </div>
-            <div className="md:col-span-2">
-              <div className="flex flex-wrap gap-2">
-                <button name="intent" value="publish" className="w-full rounded-lg bg-brand px-5 py-3 text-sm font-medium text-white transition hover:bg-brand-dark sm:w-auto">Publish to website</button>
-                <button name="intent" value="draft" className="w-full rounded-lg border border-border bg-white px-5 py-3 text-sm font-medium text-text transition hover:bg-black/5 sm:w-auto">Save as draft</button>
+              <div className="md:col-span-2">
+                <Field label="Short summary"><textarea name="excerpt" required minLength={10} maxLength={500} rows={2} className={inputClass} placeholder="A concise introduction shown on the public listing page." /></Field>
               </div>
-            </div>
-          </form>
+              <div className="md:col-span-2">
+                <Field label="Article content"><textarea name="content" required minLength={30} maxLength={30000} rows={8} className={inputClass} placeholder="Write the full story. Separate paragraphs with a blank line." /></Field>
+              </div>
+              <div className="md:col-span-2">
+                <div className="flex flex-wrap gap-2">
+                  <button name="intent" value="publish" className="w-full rounded-lg bg-brand px-5 py-3 text-sm font-medium text-white transition hover:bg-brand-dark sm:w-auto">Publish to website</button>
+                  <button name="intent" value="draft" className="w-full rounded-lg border border-border bg-white px-5 py-3 text-sm font-medium text-text transition hover:bg-black/5 sm:w-auto">Save as draft</button>
+                </div>
+              </div>
+            </form>
+          )}
         </section>
 
         <section className="overflow-hidden rounded-xl border border-border bg-card shadow-card">
@@ -93,38 +98,47 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
             <p className="mt-1 text-sm text-text-muted">Published entries appear on the public website. Drafts and archived entries remain private.</p>
           </div>
           <div className="divide-y divide-border">
-            {(entries ?? []).map((entry: any) => (
+            {contentEntries.map((entry: any) => (
               <article key={entry.id} className="p-4 sm:p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-medium text-text">{entry.title}</h3>
-                      <StatusBadge status={entry.status} />
+                  <div className="flex min-w-0 gap-4">
+                    {isDevelopment && (
+                      <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-stone-100">
+                        {entry.cover_image_url ? <Image src={entry.cover_image_url} alt="" fill unoptimized sizes="112px" className="object-cover" /> : <span className="flex h-full items-center justify-center px-2 text-center text-[10px] text-text-muted">No cover image</span>}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-medium text-text">{entry.title}</h3>
+                        <StatusBadge status={entry.status} />
+                      </div>
+                      <p className="mt-1 break-all text-xs text-text-muted">/{kind}/{entry.slug}</p>
+                      <p className="mt-2 max-w-3xl text-sm text-text-muted">{entry.excerpt}</p>
                     </div>
-                    <p className="mt-1 break-all text-xs text-text-muted">/{kind}/{entry.slug}</p>
-                    <p className="mt-2 max-w-3xl text-sm text-text-muted">{entry.excerpt}</p>
                   </div>
                   <div className="flex shrink-0 flex-wrap items-center gap-3 text-sm">
                     {entry.status === 'published' && <Link href={`${publicPath}/${entry.slug}`} target="_blank" className="font-medium text-brand hover:underline">Preview ↗</Link>}
                     <details className="relative">
                       <summary className="cursor-pointer font-medium text-brand hover:underline">Edit</summary>
-                      <form action={saveMarketingContent} className="mt-3 grid min-w-0 gap-3 rounded-lg border border-border bg-paper p-4 sm:absolute sm:right-0 sm:z-10 sm:w-[min(38rem,calc(100vw-2rem))] sm:shadow-xl">
-                        <input type="hidden" name="content_type" value={kind} />
-                        <input type="hidden" name="id" value={entry.id} />
-                        <Field label="Title"><input name="title" required minLength={3} maxLength={180} defaultValue={entry.title} className={inputClass} /></Field>
-                        <Field label="URL slug"><input name="slug" required maxLength={180} defaultValue={entry.slug} className={inputClass} /></Field>
-                        {isDevelopment ? (
-                          <Field label="Location (optional)"><input name="location" maxLength={160} defaultValue={entry.location ?? ''} className={inputClass} /></Field>
-                        ) : (
-                          <Field label="Category"><input name="category" required minLength={2} maxLength={80} defaultValue={entry.category ?? 'Insights'} className={inputClass} /></Field>
-                        )}
-                        <Field label="Short summary"><textarea name="excerpt" required minLength={10} maxLength={500} rows={3} defaultValue={entry.excerpt} className={inputClass} /></Field>
-                        <Field label={isDevelopment ? 'Development details' : 'Article content'}><textarea name="content" required minLength={30} maxLength={30000} rows={8} defaultValue={entry.content} className={inputClass} /></Field>
-                        <div className="flex flex-wrap gap-2">
-                          <button name="intent" value="save" className="rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text hover:bg-black/5">Save changes</button>
-                          {entry.status !== 'published' && <button name="intent" value="publish" className="rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-dark">Save and publish</button>}
+                      {isDevelopment ? (
+                        <div className="mt-3 min-w-0 rounded-lg border border-border bg-paper p-4 sm:absolute sm:right-0 sm:z-10 sm:w-[min(38rem,calc(100vw-2rem))] sm:shadow-xl">
+                          <DevelopmentContentForm entry={entry} />
                         </div>
-                      </form>
+                      ) : (
+                        <form action={saveMarketingContent} className="mt-3 grid min-w-0 gap-3 rounded-lg border border-border bg-paper p-4 sm:absolute sm:right-0 sm:z-10 sm:w-[min(38rem,calc(100vw-2rem))] sm:shadow-xl">
+                          <input type="hidden" name="content_type" value={kind} />
+                          <input type="hidden" name="id" value={entry.id} />
+                          <Field label="Title"><input name="title" required minLength={3} maxLength={180} defaultValue={entry.title} className={inputClass} /></Field>
+                          <Field label="URL slug"><input name="slug" required maxLength={180} defaultValue={entry.slug} className={inputClass} /></Field>
+                          <Field label="Category"><input name="category" required minLength={2} maxLength={80} defaultValue={entry.category ?? 'Insights'} className={inputClass} /></Field>
+                          <Field label="Short summary"><textarea name="excerpt" required minLength={10} maxLength={500} rows={3} defaultValue={entry.excerpt} className={inputClass} /></Field>
+                          <Field label="Article content"><textarea name="content" required minLength={30} maxLength={30000} rows={8} defaultValue={entry.content} className={inputClass} /></Field>
+                          <div className="flex flex-wrap gap-2">
+                            <button name="intent" value="save" className="rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text hover:bg-black/5">Save changes</button>
+                            {entry.status !== 'published' && <button name="intent" value="publish" className="rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-dark">Save and publish</button>}
+                          </div>
+                        </form>
+                      )}
                     </details>
                   </div>
                 </div>
