@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import { getPublishedContent, formatContentDate } from '@/lib/marketing-content';
 import { EmptyState, PublicFooter, PublicHeader } from '@/components/public-content-shell';
 
@@ -34,7 +35,7 @@ export default async function DevelopmentsPage() {
                   <h2 className="mt-4 font-display text-2xl font-semibold leading-snug group-hover:text-red-800">{item.title}</h2>
                   {item.location && <p className="mt-2 text-sm font-medium text-stone-500">{item.location}</p>}
                   <p className="mt-3 flex-1 text-sm leading-6 text-stone-600">{item.excerpt}</p>
-                  <span className="mt-6 text-sm font-semibold text-stone-900">Explore development <span aria-hidden>→</span></span>
+                  <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-stone-900">Explore development <ArrowRight aria-hidden="true" size={16} strokeWidth={1.8} /></span>
                 </div>
               </Link>
             ))}

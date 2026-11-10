@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Building2, CheckCircle2, CircleDollarSign, Home, Plus } from 'lucide-react';
+import { ArrowUpRight, Building2, CheckCircle2, CircleDollarSign, Home, Plus } from 'lucide-react';
 import { Topbar } from '@/components/topbar';
 import { StatusBadge } from '@/components/status-badge';
 import { getCurrentAdmin } from '@/lib/queries';
@@ -184,7 +184,7 @@ export default async function AdminPropertiesPage({
                         <Link href={`${portalPath(`/admin/properties/${property.id}`)}#images`} className="text-xs text-brand hover:underline">Upload / manage photos</Link>
                         {property.status === 'published' ? (
                           <>
-                            <Link href={`/properties/${property.slug}`} target="_blank" className="text-xs text-brand hover:underline">View ↗</Link>
+                            <Link href={`/properties/${property.slug}`} target="_blank" className="inline-flex items-center gap-1 text-xs text-brand hover:underline">View <ArrowUpRight aria-hidden="true" size={13} strokeWidth={1.8} /></Link>
                             <PropertyAction propertyId={property.id} value="draft" label="Unpublish" action={changePropertyStatus} />
                           </>
                         ) : <PropertyAction propertyId={property.id} value="published" label="Publish" action={changePropertyStatus} />}

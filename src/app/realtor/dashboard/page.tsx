@@ -1,7 +1,7 @@
 import { portalPath } from '@/lib/paths';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Users2, Wallet, Clock, UserPlus } from 'lucide-react';
+import { ArrowRight, Users2, Wallet, Clock, UserPlus } from 'lucide-react';
 import {
   getCurrentRealtor,
   getRealtorStats,
@@ -150,8 +150,8 @@ export default async function RealtorDashboardPage() {
               Clients you&apos;ve submitted directly, and the outcome once admin decides.
             </p>
           </div>
-          <Link href={portalPath('/dashboard/leads')} className="text-xs text-brand hover:text-brand-dark shrink-0">
-            View all →
+          <Link href={portalPath('/dashboard/leads')} className="inline-flex items-center gap-1 text-xs text-brand hover:text-brand-dark shrink-0">
+            View all <ArrowRight aria-hidden="true" size={14} strokeWidth={1.8} />
           </Link>
         </div>
         <div className="overflow-x-auto scrollbar-thin">

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { Topbar } from '@/components/topbar';
 import { StatusBadge } from '@/components/status-badge';
@@ -43,12 +44,12 @@ export default async function EditPropertyPage({
       <Topbar title="Edit property" description={property.title} admin={admin} />
       <main className="space-y-6 p-6 md:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link href={portalPath('/admin/properties')} className="text-sm text-text-muted hover:text-text">← Property Management</Link>
+          <Link href={portalPath('/admin/properties')} className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text"><ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} /> Property Management</Link>
           <div className="flex items-center gap-3">
             <Link href="#images" className="text-sm font-medium text-brand hover:underline">Manage property photos</Link>
             <StatusBadge status={property.status} />
             <span className="rounded-full bg-black/5 px-3 py-1 text-xs font-medium capitalize text-text-muted">{String(property.availability_status).replace('_', ' ')}</span>
-            {property.status === 'published' && <Link href={`/properties/${property.slug}`} target="_blank" className="text-sm font-medium text-brand hover:underline">View public page ↗</Link>}
+            {property.status === 'published' && <Link href={`/properties/${property.slug}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline">View public page <ArrowUpRight aria-hidden="true" size={14} strokeWidth={1.8} /></Link>}
           </div>
         </div>
 

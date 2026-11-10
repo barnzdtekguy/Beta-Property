@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { PublicBrandLogo } from '@/components/public-brand-logo';
 
 export default function PropertySiteHeader() {
@@ -21,7 +22,7 @@ export default function PropertySiteHeader() {
             Explore properties
           </Link>
           <Link href="/contact" className="inline-flex items-center gap-5 rounded-sm bg-[#f32e37] px-4 py-3 text-[11px] font-semibold text-white transition hover:bg-[#d81e29] sm:px-5">
-            Let’s talk <span aria-hidden="true" className="text-base leading-none">↗</span>
+            Let’s talk <ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
           </Link>
         </div>
       </div>

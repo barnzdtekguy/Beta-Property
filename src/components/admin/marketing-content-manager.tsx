@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowUpRight } from 'lucide-react';
 import { Topbar } from '@/components/topbar';
 import { StatusBadge } from '@/components/status-badge';
 import { getCurrentAdmin } from '@/lib/queries';
@@ -76,7 +77,7 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
               <h2 className="font-display text-lg text-text">Create a {isDevelopment ? 'development' : 'new insight'}</h2>
             <p className="mt-1 text-sm text-text-muted">Publish it to show it on the public website, or save it as a private draft.</p>
             </div>
-            <Link href={publicPath} target="_blank" className="text-sm font-medium text-brand hover:underline">View public page ↗</Link>
+            <Link href={publicPath} target="_blank" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline">View public page <ArrowUpRight aria-hidden="true" size={14} strokeWidth={1.8} /></Link>
           </div>
 
           {isDevelopment ? <DevelopmentContentForm /> : (
@@ -126,7 +127,7 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-wrap items-center gap-3 text-sm">
-                    {entry.status === 'published' && <Link href={`${publicPath}/${entry.slug}`} target="_blank" className="font-medium text-brand hover:underline">Preview ↗</Link>}
+                    {entry.status === 'published' && <Link href={`${publicPath}/${entry.slug}`} target="_blank" className="inline-flex items-center gap-1 font-medium text-brand hover:underline">Preview <ArrowUpRight aria-hidden="true" size={14} strokeWidth={1.8} /></Link>}
                     <details className="relative">
                       <summary className="cursor-pointer font-medium text-brand hover:underline">Edit</summary>
                       {isDevelopment ? (

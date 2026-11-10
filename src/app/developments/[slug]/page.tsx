@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { formatContentDate, getPublishedContentBySlug } from '@/lib/marketing-content';
 import { PublicFooter, PublicHeader } from '@/components/public-content-shell';
 
@@ -20,7 +21,7 @@ export default async function DevelopmentPage({ params }: { params: { slug: stri
     <main className="min-h-screen bg-white text-stone-900">
       <PublicHeader />
       <article className="mx-auto max-w-4xl px-5 py-12 md:py-20">
-        <Link href="/developments" className="text-sm font-medium text-red-700 hover:underline">← All developments</Link>
+        <Link href="/developments" className="inline-flex items-center gap-2 text-sm font-medium text-red-700 hover:underline"><ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} /> All developments</Link>
         <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-red-700">Development{development.location ? ` · ${development.location}` : ''}</p>
         <h1 className="mt-3 font-display text-4xl font-semibold leading-tight sm:text-5xl">{development.title}</h1>
         <p className="mt-5 text-lg leading-8 text-stone-600">{development.excerpt}</p>
