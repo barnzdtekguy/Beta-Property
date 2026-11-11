@@ -8,13 +8,15 @@ import { PublicFooter, PublicHeader } from '@/components/public-content-shell';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const development = await getPublishedContentBySlug('developments', params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const development = await getPublishedContentBySlug('developments', slug);
   return development ? { title: `${development.title} | Beta Property`, description: development.excerpt } : {};
 }
 
-export default async function DevelopmentPage({ params }: { params: { slug: string } }) {
-  const development = await getPublishedContentBySlug('developments', params.slug);
+export default async function DevelopmentPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const development = await getPublishedContentBySlug('developments', slug);
   if (!development) notFound();
 
   return (

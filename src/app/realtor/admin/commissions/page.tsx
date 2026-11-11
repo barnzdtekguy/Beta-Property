@@ -15,10 +15,11 @@ const PAGE_SIZE = 20;
 export default async function CommissionsPage({
   searchParams,
 }: {
-  searchParams: { status?: string; page?: string };
+  searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  const page = Number(searchParams.page ?? 1) || 1;
-  const status = searchParams.status ?? 'all';
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1) || 1;
+  const status = resolvedSearchParams.status ?? 'all';
 
   const [admin, summary, { payments, total }] = await Promise.all([
     getCurrentAdmin(),

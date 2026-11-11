@@ -3,10 +3,11 @@ import { submitPropertyInquiry } from '@/app/properties/actions';
 
 export const dynamic = 'force-dynamic';
 
-export default function ContactPage({ searchParams }: { searchParams: { inquiry?: string } }) {
-  const errorMessage = searchParams.inquiry === 'invalid'
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ inquiry?: string }> }) {
+  const resolvedSearchParams = await searchParams;
+  const errorMessage = resolvedSearchParams.inquiry === 'invalid'
     ? 'Please check the form details and try again.'
-    : searchParams.inquiry === 'unavailable'
+    : resolvedSearchParams.inquiry === 'unavailable'
       ? 'We could not submit your inquiry. Please try again.'
       : null;
 
@@ -17,7 +18,7 @@ export default function ContactPage({ searchParams }: { searchParams: { inquiry?
         <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-brand">Get in touch</p>
         <h1 className="mt-3 font-display text-4xl font-semibold">Start a conversation.</h1>
         <p className="mt-3 text-sm leading-6 text-stone-600">Tell us what you’re looking for and the team will follow up using your preferred contact method.</p>
-        {searchParams.inquiry === 'sent' ? (
+        {resolvedSearchParams.inquiry === 'sent' ? (
           <p role="status" id="inquiry" className="mt-8 rounded-xl bg-success-soft p-5 text-sm text-success">Thank you. Your inquiry has been sent to our team.</p>
         ) : (
           <form id="inquiry" action={submitPropertyInquiry} className="mt-8 space-y-4 rounded-xl border border-stone-200 p-6">

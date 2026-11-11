@@ -14,13 +14,14 @@ const ERROR_COPY: Record<string, string> = {
   'approval-pending': 'Your email is verified. An administrator must approve your account before portal access is enabled.',
 };
 
-export default function RealtorLoginPage({
+export default async function RealtorLoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; next?: string };
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
-  const errorMessage = searchParams.error
-    ? ERROR_COPY[searchParams.error] ?? searchParams.error
+  const resolvedSearchParams = await searchParams;
+  const errorMessage = resolvedSearchParams.error
+    ? ERROR_COPY[resolvedSearchParams.error] ?? resolvedSearchParams.error
     : null;
 
   return (
@@ -59,7 +60,7 @@ export default function RealtorLoginPage({
           </p>
 
           <TrackedForm action={signIn} className="mt-8 space-y-4">
-            <input type="hidden" name="next" value={searchParams.next ?? portalPath('/dashboard')} />
+            <input type="hidden" name="next" value={resolvedSearchParams.next ?? portalPath('/dashboard')} />
 
             <div>
               <label htmlFor="email" className="block text-xs font-medium text-text-muted mb-1.5">

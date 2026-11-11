@@ -14,22 +14,23 @@ const PAGE_SIZE = 20;
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     status?: string;
     page?: string;
     sort?: string;
     error?: string;
     updated?: string;
-  };
+  }>;
 }) {
-  const page = Number(searchParams.page ?? 1) || 1;
-  const search = searchParams.search ?? '';
-  const status = searchParams.status ?? 'all';
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1) || 1;
+  const search = resolvedSearchParams.search ?? '';
+  const status = resolvedSearchParams.status ?? 'all';
 
   const [admin, { users, total }] = await Promise.all([
     getCurrentAdmin(),
-    getUsers({ search, status, page, pageSize: PAGE_SIZE, sort: (searchParams.sort as any) ?? 'newest' }),
+    getUsers({ search, status, page, pageSize: PAGE_SIZE, sort: (resolvedSearchParams.sort as any) ?? 'newest' }),
   ]);
 
   const exportQuery = new URLSearchParams({ search, status }).toString();
@@ -51,12 +52,12 @@ export default async function UsersPage({
       />
 
       <main className="p-6 md:p-8 space-y-4">
-        {searchParams.error && (
+        {resolvedSearchParams.error && (
           <p role="alert" className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">
-            {errorMessages[searchParams.error] ?? 'The agent update failed.'}
+            {errorMessages[resolvedSearchParams.error] ?? 'The agent update failed.'}
           </p>
         )}
-        {searchParams.updated && (
+        {resolvedSearchParams.updated && (
           <p role="status" className="rounded-lg border border-success/20 bg-success-soft px-4 py-3 text-sm text-success">
             Agent status updated.
           </p>

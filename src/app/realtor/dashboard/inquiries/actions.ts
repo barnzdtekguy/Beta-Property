@@ -18,7 +18,7 @@ export async function updateAssignedInquiryStatus(formData: FormData) {
     redirect(portalPath('/dashboard?inquiry_error=invalid'));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('inquiries')
     .update({ status })
@@ -56,7 +56,7 @@ export async function addInquiryFollowUp(formData: FormData) {
     redirect(portalPath('/dashboard?inquiry_error=invalid'));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from('follow_up_activities').insert({
     inquiry_id: inquiryId,
     agent_id: realtor.id,

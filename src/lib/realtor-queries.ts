@@ -7,7 +7,7 @@ import type { AnnouncementRow, ClientLeadRow, CommissionPaymentRow, UserReferral
  * explicit filter needed here beyond the auth session itself.
  */
 export async function getCurrentRealtor() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -25,7 +25,7 @@ export async function getCurrentRealtor() {
 }
 
 export async function getRealtorStats(realtorId: string): Promise<UserReferralStats> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('user_referral_stats')
     .select('*')
@@ -45,7 +45,7 @@ export async function getRealtorStats(realtorId: string): Promise<UserReferralSt
 
 /** People this realtor personally referred (level 1 only). */
 export async function getRealtorDirectReferrals(realtorId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('referrals')
     .select(
@@ -60,7 +60,7 @@ export async function getRealtorDirectReferrals(realtorId: string) {
 
 /** Override earnings from this realtor's downline (level 2+). */
 export async function getRealtorOverrideEarnings(realtorId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from('referrals')
     .select(
@@ -79,7 +79,7 @@ export async function getRealtorOverrideEarnings(realtorId: string) {
 // ----------------------------------------------------------------------------
 
 export async function getRealtorLeads(realtorId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('client_leads')
     .select('*')
@@ -91,7 +91,7 @@ export async function getRealtorLeads(realtorId: string) {
 }
 
 export async function getRealtorAssignedProperties(realtorId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('agent_property_assignments')
     .select('property:property_id(id, slug, title, property_type, listing_type, status, city, state)')
@@ -103,7 +103,7 @@ export async function getRealtorAssignedProperties(realtorId: string) {
 }
 
 export async function getRealtorAssignedInquiries(realtorId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('inquiries')
     .select('id, full_name, email, phone, request_details, status, preferred_contact_method, created_at, property:property_id(title, slug)')
@@ -115,7 +115,7 @@ export async function getRealtorAssignedInquiries(realtorId: string) {
 }
 
 export async function getRealtorPayoutApplications(realtorId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('commission_payments')
     .select('*')
@@ -127,7 +127,7 @@ export async function getRealtorPayoutApplications(realtorId: string) {
 }
 
 export async function getAnnouncements(limit = 10) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('announcements')
     .select('id, title, body, created_at')
@@ -142,7 +142,7 @@ export async function getAnnouncements(limit = 10) {
 // applies for payout on a successful sale, it shows up here so the referrer
 // can see "{name} has made a sale" on their own dashboard.
 export async function getDownlineSalesActivity(realtorId: string, limit = 10) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: downline, error: downlineErr } = await supabase
     .from('users')

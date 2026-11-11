@@ -2,12 +2,13 @@ import { Check } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { portalPath } from '@/lib/paths';
 
-export default function RegisterSuccessPage({
+export default async function RegisterSuccessPage({
   searchParams,
 }: {
-  searchParams: { code?: string; name?: string };
+  searchParams: Promise<{ code?: string; name?: string }>;
 }) {
-  const name = searchParams.name ?? 'there';
+  const resolvedSearchParams = await searchParams;
+  const name = resolvedSearchParams.name ?? 'there';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-paper p-6">

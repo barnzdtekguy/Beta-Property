@@ -36,7 +36,7 @@ export async function submitPropertyInquiry(formData: FormData) {
   }
 
   if (propertyId) {
-    const userClient = createClient();
+    const userClient = await createClient();
     const { data: property, error: propertyError } = await userClient
       .from('properties')
       .select('id')

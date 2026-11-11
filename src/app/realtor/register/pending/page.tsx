@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { Mail } from 'lucide-react';
 import { Logo } from '@/components/logo';
 
-export default function RegisterPendingPage({
+export default async function RegisterPendingPage({
   searchParams,
 }: {
-  searchParams: { email?: string };
+  searchParams: Promise<{ email?: string }>;
 }) {
-  const email = searchParams.email ?? '';
+  const resolvedSearchParams = await searchParams;
+  const email = resolvedSearchParams.email ?? '';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-paper p-6">

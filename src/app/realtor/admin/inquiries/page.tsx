@@ -10,10 +10,11 @@ export const dynamic = 'force-dynamic';
 export default async function AdminInquiriesPage({
   searchParams,
 }: {
-  searchParams: { error?: string; updated?: string };
+  searchParams: Promise<{ error?: string; updated?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const admin = await getCurrentAdmin();
-  const supabase = createClient();
+  const supabase = await createClient();
   const [{ data: inquiries, error: inquiryError }, { data: agents, error: agentError }] = await Promise.all([
     supabase
       .from('inquiries')
@@ -34,8 +35,8 @@ export default async function AdminInquiriesPage({
     <>
       <Topbar title="Inquiries" description={`${inquiries?.length ?? 0} visitor inquiries`} admin={admin} />
       <main className="space-y-4 p-6 md:p-8">
-        {searchParams.error && <p role="alert" className="rounded-lg bg-danger-soft px-4 py-3 text-sm text-danger">{errors[searchParams.error] ?? 'The inquiry could not be updated.'}</p>}
-        {searchParams.updated && <p role="status" className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success">Inquiry updated.</p>}
+        {resolvedSearchParams.error && <p role="alert" className="rounded-lg bg-danger-soft px-4 py-3 text-sm text-danger">{errors[resolvedSearchParams.error] ?? 'The inquiry could not be updated.'}</p>}
+        {resolvedSearchParams.updated && <p role="status" className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success">Inquiry updated.</p>}
 
         {(inquiries ?? []).map((inquiry) => {
           const property = Array.isArray(inquiry.property) ? inquiry.property[0] : inquiry.property;

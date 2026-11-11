@@ -19,7 +19,7 @@ export async function updateInquiry(formData: FormData) {
     redirect(portalPath('/admin/inquiries?error=invalid-update'));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   if (agentId) {
     const { data: agent, error: agentError } = await supabase
       .from('users')

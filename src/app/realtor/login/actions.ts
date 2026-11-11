@@ -19,7 +19,7 @@ export async function signIn(formData: FormData) {
     redirect(portalPath(`/login?error=${encodeURIComponent(lockout.message!)}`));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {

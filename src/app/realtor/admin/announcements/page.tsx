@@ -10,9 +10,10 @@ const PAGE_SIZE = 20;
 export default async function AnnouncementsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; error?: string; success?: string };
+  searchParams: Promise<{ page?: string; error?: string; success?: string }>;
 }) {
-  const page = Number(searchParams.page ?? 1) || 1;
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1) || 1;
 
   const [admin, { announcements, total }] = await Promise.all([
     getCurrentAdmin(),
@@ -54,7 +55,7 @@ export default async function AnnouncementsPage({
               />
             </div>
 
-            <FlashMessage error={searchParams.error ?? null} success={searchParams.success ?? null} />
+            <FlashMessage error={resolvedSearchParams.error ?? null} success={resolvedSearchParams.success ?? null} />
 
             <button
               type="submit"

@@ -15,9 +15,10 @@ function labelFor(value: string) {
 export default async function PropertiesPage({
   searchParams,
 }: {
-  searchParams: PropertyFilters;
+  searchParams: Promise<PropertyFilters>;
 }) {
-  const properties = await getPublishedProperties(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const properties = await getPublishedProperties(resolvedSearchParams);
 
   return (
     <main className="min-h-screen bg-[#f8f7f5] text-[#171719]">
@@ -48,7 +49,7 @@ export default async function PropertiesPage({
               <MapPin aria-hidden="true" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#f32e37]" />
               <input
                 name="location"
-                defaultValue={searchParams.location}
+                defaultValue={resolvedSearchParams.location}
                 placeholder="City, state or area"
                 className="h-11 w-full rounded-sm border border-stone-200 bg-white pl-9 pr-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none transition placeholder:text-stone-400 focus:border-[#f32e37]"
               />
@@ -56,14 +57,14 @@ export default async function PropertiesPage({
           </label>
           <label className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
             Property type
-            <select name="type" defaultValue={searchParams.type ?? ''} className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none focus:border-[#f32e37]">
+            <select name="type" defaultValue={resolvedSearchParams.type ?? ''} className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none focus:border-[#f32e37]">
               <option value="">All types</option>
               {propertyTypes.map((type) => <option key={type} value={type}>{labelFor(type)}</option>)}
             </select>
           </label>
           <label className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
             Listing
-            <select name="listing" defaultValue={searchParams.listing ?? ''} className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none focus:border-[#f32e37]">
+            <select name="listing" defaultValue={resolvedSearchParams.listing ?? ''} className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none focus:border-[#f32e37]">
               <option value="">Sale or rent</option>
               <option value="sale">For sale</option>
               <option value="rent">For rent</option>
@@ -72,11 +73,11 @@ export default async function PropertiesPage({
           </label>
           <label className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
             Minimum price
-            <input name="minPrice" type="number" min="0" defaultValue={searchParams.minPrice} placeholder="No minimum" className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none placeholder:text-stone-400 focus:border-[#f32e37]" />
+            <input name="minPrice" type="number" min="0" defaultValue={resolvedSearchParams.minPrice} placeholder="No minimum" className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none placeholder:text-stone-400 focus:border-[#f32e37]" />
           </label>
           <label className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
             Maximum price
-            <input name="maxPrice" type="number" min="0" defaultValue={searchParams.maxPrice} placeholder="No maximum" className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none placeholder:text-stone-400 focus:border-[#f32e37]" />
+            <input name="maxPrice" type="number" min="0" defaultValue={resolvedSearchParams.maxPrice} placeholder="No maximum" className="mt-2 h-11 w-full rounded-sm border border-stone-200 bg-white px-3 text-sm font-normal normal-case tracking-normal text-[#171719] outline-none placeholder:text-stone-400 focus:border-[#f32e37]" />
           </label>
           <button className="inline-flex h-11 items-center justify-center gap-4 rounded-sm bg-[#f32e37] px-5 text-xs font-semibold text-white transition hover:bg-[#d81e29]">
             Find a place <ArrowUpRight aria-hidden="true" size={17} />

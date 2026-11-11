@@ -18,9 +18,10 @@ const contentTypes: Record<string, string> = {
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug?: string[] } }
+  { params }: { params: Promise<{ slug?: string[] }> }
 ) {
-  const requestedPath = resolve(publicRoot, ...(params.slug ?? []));
+  const { slug } = await params;
+  const requestedPath = resolve(publicRoot, ...(slug ?? []));
   const relativePath = relative(publicRoot, requestedPath);
   if (relativePath.startsWith('..') || isAbsolute(relativePath)) {
     return new Response('Not found', { status: 404 });
@@ -49,7 +50,7 @@ export async function GET(
   }
 }
 
-export async function HEAD(request: Request, context: { params: { slug?: string[] } }) {
+export async function HEAD(request: Request, context: { params: Promise<{ slug?: string[] }> }) {
   const response = await GET(request, context);
   return new Response(null, {
     status: response.status,

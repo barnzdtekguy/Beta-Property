@@ -13,17 +13,19 @@ export default async function ApplyForPayoutPage({
   params,
   searchParams,
 }: {
-  params: { leadId: string };
-  searchParams?: { error?: string };
+  params: Promise<{ leadId: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
+  const { leadId } = await params;
   const realtor = await getCurrentRealtor();
   if (!realtor) redirect(portalPath('/login'));
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: lead } = await supabase
     .from('client_leads')
     .select('id, client_name, status, commission_amount, realtor_id')
-    .eq('id', params.leadId)
+    .eq('id', leadId)
     .maybeSingle();
 
   if (!lead || lead.realtor_id !== realtor!.id) notFound();
@@ -98,7 +100,7 @@ export default async function ApplyForPayoutPage({
               <BankSelect />
             </div>
 
-            <FlashMessage error={searchParams?.error ?? null} />
+            <FlashMessage error={resolvedSearchParams?.error ?? null} />
 
             <button
               type="submit"

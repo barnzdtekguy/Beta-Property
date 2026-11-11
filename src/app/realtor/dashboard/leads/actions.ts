@@ -22,7 +22,7 @@ export async function submitLead(formData: FormData) {
     redirect(portalPath(`/dashboard/leads?error=${encodeURIComponent('Client name, phone, and property type are required.')}`));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from('client_leads').insert({
     realtor_id: realtor!.id,
     client_name: clientName,

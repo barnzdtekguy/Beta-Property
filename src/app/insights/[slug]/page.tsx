@@ -7,13 +7,15 @@ import { PublicFooter, PublicHeader } from '@/components/public-content-shell';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const insight = await getPublishedContentBySlug('insights', params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const insight = await getPublishedContentBySlug('insights', slug);
   return insight ? { title: `${insight.title} | Beta Property`, description: insight.excerpt } : {};
 }
 
-export default async function InsightPage({ params }: { params: { slug: string } }) {
-  const insight = await getPublishedContentBySlug('insights', params.slug);
+export default async function InsightPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const insight = await getPublishedContentBySlug('insights', slug);
   if (!insight) notFound();
 
   return (

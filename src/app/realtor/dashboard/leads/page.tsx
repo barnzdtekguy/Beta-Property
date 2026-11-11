@@ -19,8 +19,9 @@ const PROPERTY_TYPE_LABELS: Record<string, string> = {
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams?: { error?: string; success?: string };
+  searchParams: Promise<{ error?: string; success?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const realtor = await getCurrentRealtor();
   if (!realtor) redirect(portalPath('/login'));
 
@@ -121,7 +122,7 @@ export default async function LeadsPage({
             />
           </div>
 
-          <FlashMessage error={searchParams?.error ?? null} success={searchParams?.success ?? null} />
+          <FlashMessage error={resolvedSearchParams?.error ?? null} success={resolvedSearchParams?.success ?? null} />
 
           <button
             type="submit"

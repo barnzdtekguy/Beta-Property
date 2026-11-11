@@ -16,15 +16,17 @@ export default async function EditPropertyPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { error?: string; created?: string; updated?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string; created?: string; updated?: string }>;
 }) {
-  const supabase = createClient();
+  const resolvedSearchParams = await searchParams;
+  const { id } = await params;
+  const supabase = await createClient();
   const [{ data: property, error }, admin] = await Promise.all([
     supabase
       .from('properties')
       .select('*, property_images(id, storage_path, alt_text, sort_order, created_at)')
-      .eq('id', params.id)
+      .eq('id', id)
       .maybeSingle(),
     getCurrentAdmin(),
   ]);
@@ -53,11 +55,11 @@ export default async function EditPropertyPage({
           </div>
         </div>
 
-        {searchParams.error && (
-          <p role="alert" className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">{searchParams.error}</p>
+        {resolvedSearchParams.error && (
+          <p role="alert" className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">{resolvedSearchParams.error}</p>
         )}
-        {searchParams.created && <p role="status" className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success">Property created. Add its photos below, then publish when ready.</p>}
-        {searchParams.updated && <p role="status" className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success">Property details saved.</p>}
+        {resolvedSearchParams.created && <p role="status" className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success">Property created. Add its photos below, then publish when ready.</p>}
+        {resolvedSearchParams.updated && <p role="status" className="rounded-lg bg-success-soft px-4 py-3 text-sm text-success">Property details saved.</p>}
 
         <PropertyForm action={updateProperty} mode="edit" property={property} />
 

@@ -33,9 +33,10 @@ async function resolveReferrer(ref: string) {
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: { ref?: string; error?: string };
+  searchParams: Promise<{ ref?: string; error?: string }>;
 }) {
-  const ref = searchParams.ref ?? '';
+  const resolvedSearchParams = await searchParams;
+  const ref = resolvedSearchParams.ref ?? '';
   const referrerName = await resolveReferrer(ref);
 
   return (
@@ -131,7 +132,7 @@ export default async function RegisterPage({
 
             <ReferralCodeToggle initialRef={ref} />
 
-            <AutoDismissError message={searchParams.error ?? null} />
+            <AutoDismissError message={resolvedSearchParams.error ?? null} />
 
             <AuthSubmitButton
               pendingLabel="Creating your account…"

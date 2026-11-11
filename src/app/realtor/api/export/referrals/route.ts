@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
+import { getCurrentAdmin } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate } from '@/lib/utils';
 
 const MAX_ROWS = 20000;
 
 export async function GET(request: Request) {
-  const supabase = createClient();
+  if (!(await getCurrentAdmin())) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const supabase = await createClient();
 
   const {
     data: { user },

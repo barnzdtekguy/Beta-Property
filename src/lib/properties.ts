@@ -16,7 +16,7 @@ type PropertyImage = { id: string; storage_path: string; alt_text: string; sort_
 async function addImageUrls<T extends { property_images: PropertyImage[] }>(
   properties: T[]
 ): Promise<Array<Omit<T, 'property_images'> & { property_images: Array<PropertyImage & { url: string }> }>> {
-  const supabase = createClient();
+  const supabase = await createClient();
   return Promise.all(
     properties.map(async (property) => {
       const images = await Promise.all(
@@ -36,7 +36,7 @@ async function addImageUrls<T extends { property_images: PropertyImage[] }>(
 }
 
 export async function getPublishedProperties(filters: PropertyFilters = {}) {
-  const supabase = createClient();
+  const supabase = await createClient();
   let query = supabase
     .from('properties')
     .select(
@@ -74,7 +74,7 @@ export async function getPublishedProperties(filters: PropertyFilters = {}) {
 }
 
 export async function getPublishedProperty(slug: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('properties')
     .select(

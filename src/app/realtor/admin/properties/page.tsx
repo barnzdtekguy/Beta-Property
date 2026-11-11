@@ -19,9 +19,10 @@ const AVAILABILITY_STATUSES = ['available', 'sold', 'rented', 'leased'];
 export default async function AdminPropertiesPage({
   searchParams,
 }: {
-  searchParams: { error?: string; created?: string; updated?: string; deleted?: string; search?: string; location?: string; status?: string; type?: string; availability?: string };
+  searchParams: Promise<{ error?: string; created?: string; updated?: string; deleted?: string; search?: string; location?: string; status?: string; type?: string; availability?: string }>;
 }) {
-  const supabase = createClient();
+  const resolvedSearchParams = await searchParams;
+  const supabase = await createClient();
   const adminPromise = getCurrentAdmin();
   const countPromises = [
     supabase.from('properties').select('id', { count: 'exact', head: true }),
@@ -36,13 +37,13 @@ export default async function AdminPropertiesPage({
     .select('id, slug, title, property_type, listing_type, status, availability_status, country, state, city, neighborhood, price, currency, created_at, property_images(id, storage_path, sort_order), agent_property_assignments(id, agent_id, agent:agent_id(full_name))')
     .order('created_at', { ascending: false });
 
-  const search = (searchParams.search ?? '').trim().replace(/[^a-zA-Z0-9\s-]/g, ' ').replace(/\s+/g, ' ').slice(0, 80);
-  const location = (searchParams.location ?? '').trim().replace(/[^a-zA-Z0-9\s-]/g, ' ').replace(/\s+/g, ' ').slice(0, 80);
+  const search = (resolvedSearchParams.search ?? '').trim().replace(/[^a-zA-Z0-9\s-]/g, ' ').replace(/\s+/g, ' ').slice(0, 80);
+  const location = (resolvedSearchParams.location ?? '').trim().replace(/[^a-zA-Z0-9\s-]/g, ' ').replace(/\s+/g, ' ').slice(0, 80);
   if (search) propertiesQuery = propertiesQuery.ilike('title', `%${search}%`);
   if (location) propertiesQuery = propertiesQuery.or(`city.ilike.%${location}%,state.ilike.%${location}%,neighborhood.ilike.%${location}%`);
-  if (PUBLICATION_STATUSES.includes(searchParams.status ?? '')) propertiesQuery = propertiesQuery.eq('status', searchParams.status!);
-  if (PROPERTY_TYPES.includes(searchParams.type ?? '')) propertiesQuery = propertiesQuery.eq('property_type', searchParams.type!);
-  if (AVAILABILITY_STATUSES.includes(searchParams.availability ?? '')) propertiesQuery = propertiesQuery.eq('availability_status', searchParams.availability!);
+  if (PUBLICATION_STATUSES.includes(resolvedSearchParams.status ?? '')) propertiesQuery = propertiesQuery.eq('status', resolvedSearchParams.status!);
+  if (PROPERTY_TYPES.includes(resolvedSearchParams.type ?? '')) propertiesQuery = propertiesQuery.eq('property_type', resolvedSearchParams.type!);
+  if (AVAILABILITY_STATUSES.includes(resolvedSearchParams.availability ?? '')) propertiesQuery = propertiesQuery.eq('availability_status', resolvedSearchParams.availability!);
 
   const [{ data: properties, error: propertyError }, { data: agents, error: agentError }, counts, admin] = await Promise.all([
     propertiesQuery,
@@ -76,10 +77,10 @@ export default async function AdminPropertiesPage({
           </Link>
         </div>
 
-        {searchParams.error && <Message tone="danger">{searchParams.error}</Message>}
-        {searchParams.created && <Message tone="success">Property created.</Message>}
-        {searchParams.updated && <Message tone="success">Property updated.</Message>}
-        {searchParams.deleted && <Message tone="success">Property and associated images deleted.</Message>}
+        {resolvedSearchParams.error && <Message tone="danger">{resolvedSearchParams.error}</Message>}
+        {resolvedSearchParams.created && <Message tone="success">Property created.</Message>}
+        {resolvedSearchParams.updated && <Message tone="success">Property updated.</Message>}
+        {resolvedSearchParams.deleted && <Message tone="success">Property and associated images deleted.</Message>}
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <SummaryCard label="Total properties" value={total} icon={<Building2 size={18} />} />
@@ -91,13 +92,13 @@ export default async function AdminPropertiesPage({
         <section className="rounded-xl border border-border bg-card p-4 shadow-card md:p-5">
           <form action={portalPath('/admin/properties')} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
             <label className="text-xs font-medium text-text-muted lg:col-span-2">Search title
-              <input name="search" defaultValue={searchParams.search} placeholder="Search properties" className={filterClass} />
+              <input name="search" defaultValue={resolvedSearchParams.search} placeholder="Search properties" className={filterClass} />
             </label>
             <label className="text-xs font-medium text-text-muted lg:col-span-2">Location
-              <input name="location" defaultValue={searchParams.location} placeholder="City, state, or neighborhood" className={filterClass} />
+              <input name="location" defaultValue={resolvedSearchParams.location} placeholder="City, state, or neighborhood" className={filterClass} />
             </label>
             <label className="text-xs font-medium text-text-muted">Publication status
-              <select name="status" defaultValue={searchParams.status ?? ''} className={filterClass}>
+              <select name="status" defaultValue={resolvedSearchParams.status ?? ''} className={filterClass}>
                 <option value="">All statuses</option>
                 <option value="draft">Draft</option>
                 <option value="pending_review">Pending review</option>
@@ -106,13 +107,13 @@ export default async function AdminPropertiesPage({
               </select>
             </label>
             <label className="text-xs font-medium text-text-muted">Property type
-              <select name="type" defaultValue={searchParams.type ?? ''} className={filterClass}>
+              <select name="type" defaultValue={resolvedSearchParams.type ?? ''} className={filterClass}>
                 <option value="">All types</option>
                 {PROPERTY_TYPES.map((type) => <option key={type} value={type}>{labelFor(type)}</option>)}
               </select>
             </label>
             <label className="text-xs font-medium text-text-muted">Availability
-              <select name="availability" defaultValue={searchParams.availability ?? ''} className={filterClass}>
+              <select name="availability" defaultValue={resolvedSearchParams.availability ?? ''} className={filterClass}>
                 <option value="">All availability</option>
                 {AVAILABILITY_STATUSES.map((status) => <option key={status} value={status}>{labelFor(status)}</option>)}
               </select>

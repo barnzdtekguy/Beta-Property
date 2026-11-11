@@ -23,7 +23,7 @@ export async function MarketingContentManager({ kind, searchParams }: MarketingC
     ? 'Showcase projects and property developments to prospective buyers.'
     : 'Publish useful real estate guidance, market updates, and company news.';
   const publicPath = `/${kind}`;
-  const supabase = createClient();
+  const supabase = await createClient();
   const [{ data: entries, error }, admin] = await Promise.all([
     supabase.from(kind).select('*').order('created_at', { ascending: false }),
     getCurrentAdmin(),

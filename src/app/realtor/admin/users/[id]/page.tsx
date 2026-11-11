@@ -9,12 +9,13 @@ import { StatCard } from '@/components/stat-card';
 import { formatCurrency, formatDate, initials } from '@/lib/utils';
 import { Users2, CheckCircle2, Wallet, Clock } from 'lucide-react';
 
-export default async function UserDetailPage({ params }: { params: { id: string } }) {
+export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const admin = await getCurrentAdmin();
 
   let result;
   try {
-    result = await getUserById(params.id);
+    result = await getUserById(id);
   } catch {
     notFound();
   }

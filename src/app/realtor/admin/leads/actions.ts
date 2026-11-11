@@ -3,9 +3,13 @@
 import { portalPath } from '@/lib/paths';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { getCurrentAdmin } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 
 export async function markLeadSuccessful(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect(portalPath('/admin/login?error=not-authorized'));
+
   const leadId = String(formData.get('lead_id') ?? '');
   const commissionAmount = Number(formData.get('commission_amount') ?? 0);
   const notes = String(formData.get('admin_notes') ?? '').trim();
@@ -14,7 +18,7 @@ export async function markLeadSuccessful(formData: FormData) {
     redirect(portalPath(`/admin/leads/${leadId}?error=${encodeURIComponent('Enter a valid commission amount.')}`));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('client_leads')
     .update({
@@ -35,12 +39,15 @@ export async function markLeadSuccessful(formData: FormData) {
 }
 
 export async function markLeadUnsuccessful(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect(portalPath('/admin/login?error=not-authorized'));
+
   const leadId = String(formData.get('lead_id') ?? '');
   const notes = String(formData.get('admin_notes') ?? '').trim();
 
   if (!leadId) redirect(portalPath('/admin/leads'));
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('client_leads')
     .update({

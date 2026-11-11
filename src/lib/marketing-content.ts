@@ -37,7 +37,7 @@ export function isMissingDevelopmentTableError(error: { code?: string; message?:
   return message.includes('developments') && /does not exist|could not find|schema cache/.test(message);
 }
 
-async function queryPublishedContent(supabase: ReturnType<typeof createClient>, kind: MarketingContentKind, slug?: string) {
+async function queryPublishedContent(supabase: Awaited<ReturnType<typeof createClient>>, kind: MarketingContentKind, slug?: string) {
   const query = (select: string) => {
     const builder = supabase.from(kind).select(select).eq('status', 'published');
     return slug ? builder.eq('slug', slug).maybeSingle() : builder.order('published_at', { ascending: false });
@@ -52,7 +52,7 @@ async function queryPublishedContent(supabase: ReturnType<typeof createClient>, 
 }
 
 export async function getPublishedContent(kind: MarketingContentKind) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await queryPublishedContent(supabase, kind);
 
   if (error) {
@@ -70,7 +70,7 @@ export async function getPublishedContent(kind: MarketingContentKind) {
 }
 
 export async function getPublishedContentBySlug(kind: MarketingContentKind, slug: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await queryPublishedContent(supabase, kind, slug);
 
   if (error) {

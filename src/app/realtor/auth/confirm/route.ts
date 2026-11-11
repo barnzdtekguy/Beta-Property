@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
   // Cookie-bound client so a successful verification actually sets the
   // session cookies on this response — this is the real sign-in.
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.auth.verifyOtp({
     type: type as OtpType,
     token_hash: tokenHash,

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 const ALLOWED_REDIRECTS = ['/realtor/admin/login', '/realtor/login'];
 
 export async function POST(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.auth.signOut();
 
   const { searchParams } = new URL(request.url);

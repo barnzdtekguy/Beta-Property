@@ -38,9 +38,8 @@ create index if not exists idx_inquiries_referred_by on inquiries (referred_by);
 create index if not exists idx_inquiries_status on inquiries (status);
 create index if not exists idx_inquiries_created_at on inquiries (created_at desc);
 
--- 3. RLS — admins see everything, realtors see only inquiries attributed
---    to them. DROP POLICY IF EXISTS first so this migration can be safely
---    re-run.
+-- 3. RLS — admins see everything. Realtor access is granted by assigned agent
+--    in migration 007; referral attribution alone does not grant access.
 alter table inquiries enable row level security;
 
 drop policy if exists "Admins can read all inquiries" on inquiries;
@@ -59,6 +58,3 @@ create policy "Admins can update inquiries"
   using (is_admin());
 
 drop policy if exists "Realtors can read their own inquiries" on inquiries;
-create policy "Realtors can read their own inquiries"
-  on inquiries for select
-  using (referred_by = current_realtor_id());

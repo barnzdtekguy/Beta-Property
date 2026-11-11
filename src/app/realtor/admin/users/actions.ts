@@ -20,7 +20,7 @@ export async function updateAgentStatus(formData: FormData) {
     redirect(portalPath('/admin/users?error=invalid-agent-update'));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: agent, error: lookupError } = await supabase
     .from('users')
     .select('id, status, email_verified_at, referred_by, signup_referral_link_id')

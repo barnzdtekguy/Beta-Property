@@ -15,12 +15,13 @@ const PAGE_SIZE = 20;
 export default async function ReferralsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; status?: string; level?: string; page?: string };
+  searchParams: Promise<{ search?: string; status?: string; level?: string; page?: string }>;
 }) {
-  const page = Number(searchParams.page ?? 1) || 1;
-  const search = searchParams.search ?? '';
-  const status = searchParams.status ?? 'all';
-  const level = searchParams.level ?? 'all';
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1) || 1;
+  const search = resolvedSearchParams.search ?? '';
+  const status = resolvedSearchParams.status ?? 'all';
+  const level = resolvedSearchParams.level ?? 'all';
 
   const [admin, { referrals, total, totalLinks }] = await Promise.all([
     getCurrentAdmin(),

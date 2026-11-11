@@ -8,16 +8,17 @@ export const dynamic = 'force-dynamic';
 export default async function NewPropertyPage({
   searchParams,
 }: {
-  searchParams: { error?: string };
+  searchParams: Promise<{ error?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
   const admin = await getCurrentAdmin();
 
   return (
     <>
       <Topbar title="Add new property" description="Save the listing to open its photo gallery, where you can upload and arrange up to 30 images." admin={admin} />
       <main className="p-6 md:p-8">
-        {searchParams.error && (
-          <p role="alert" className="mb-5 rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">{searchParams.error}</p>
+        {resolvedSearchParams.error && (
+          <p role="alert" className="mb-5 rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">{resolvedSearchParams.error}</p>
         )}
         <PropertyForm action={createProperty} mode="create" />
       </main>

@@ -13,13 +13,14 @@ const ERROR_COPY: Record<string, string> = {
   'not-authorized': "That account isn't on the admin list yet. Ask a superadmin to add you.",
 };
 
-export default function AdminLoginPage({
+export default async function AdminLoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; next?: string };
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
-  const errorMessage = searchParams.error
-    ? ERROR_COPY[searchParams.error] ?? searchParams.error
+  const resolvedSearchParams = await searchParams;
+  const errorMessage = resolvedSearchParams.error
+    ? ERROR_COPY[resolvedSearchParams.error] ?? resolvedSearchParams.error
     : null;
 
   return (
@@ -58,7 +59,7 @@ export default function AdminLoginPage({
           </p>
 
           <TrackedForm action={signIn} className="mt-8 space-y-4">
-            <input type="hidden" name="next" value={searchParams.next ?? portalPath('/admin')} />
+            <input type="hidden" name="next" value={resolvedSearchParams.next ?? portalPath('/admin')} />
 
             <div>
               <label htmlFor="email" className="block text-xs font-medium text-text-muted mb-1.5">

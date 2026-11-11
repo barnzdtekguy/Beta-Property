@@ -18,7 +18,7 @@ export interface LeadsQueryParams {
 }
 
 export async function getLeads({ search = '', status = 'all', page = 1, pageSize = 20 }: LeadsQueryParams) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase
     .from('client_leads')
@@ -48,7 +48,7 @@ export async function getLeads({ search = '', status = 'all', page = 1, pageSize
 }
 
 export async function getLeadById(id: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('client_leads')
     .select('*, realtor:realtor_id(id, full_name, email, phone)')
@@ -64,7 +64,7 @@ export async function getLeadById(id: string) {
 // ----------------------------------------------------------------------------
 
 export async function getAllAnnouncements({ page = 1, pageSize = 20 }: { page?: number; pageSize?: number }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
@@ -83,7 +83,7 @@ export async function getAllAnnouncements({ page = 1, pageSize = 20 }: { page?: 
 // ----------------------------------------------------------------------------
 
 export async function getCurrentAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -104,7 +104,7 @@ export async function getCurrentAdmin() {
 // ----------------------------------------------------------------------------
 
 export async function getOverviewStats() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [{ count: totalUsers }, { count: totalLinks }, { count: completedReferrals }, referralsForCommission] =
     await Promise.all([
@@ -134,7 +134,7 @@ export async function getOverviewStats() {
 // Registrations per day for the last N days, filled with zeros for gaps so
 // the chart doesn't lie about flat days.
 export async function getRegistrationsOverTime(days = 30) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const since = new Date();
   since.setDate(since.getDate() - (days - 1));
   since.setHours(0, 0, 0, 0);
@@ -180,7 +180,7 @@ export async function getUsers({
   pageSize = 20,
   sort = 'newest',
 }: UsersQueryParams) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase.from('users').select(
     'id, full_name, email, phone, referral_code, referred_by, status, email_verified_at, auth_id, created_at, referrer:referred_by(full_name)',
@@ -243,7 +243,7 @@ async function getStatsForUsers(userIds: string[]) {
   const map = new Map<string, UserReferralStats>();
   if (userIds.length === 0) return map;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('user_referral_stats')
     .select('*')
@@ -257,7 +257,7 @@ async function getStatsForUsers(userIds: string[]) {
 }
 
 export async function getUserById(id: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: user, error } = await supabase
     .from('users')
@@ -330,7 +330,7 @@ export async function getReferrals({
   page = 1,
   pageSize = 20,
 }: ReferralsQueryParams) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase
     .from('referrals')
@@ -392,7 +392,7 @@ export async function getReferrals({
 // ----------------------------------------------------------------------------
 
 export async function getCommissionSummary() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: referrals, error } = await supabase
     .from('referrals')
@@ -421,7 +421,7 @@ export async function getCommissionPayments({
   pageSize?: number;
   status?: string;
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase
     .from('commission_payments')

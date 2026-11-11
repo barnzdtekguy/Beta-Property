@@ -20,11 +20,12 @@ const PROPERTY_TYPE_LABELS: Record<string, string> = {
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; status?: string; page?: string };
+  searchParams: Promise<{ search?: string; status?: string; page?: string }>;
 }) {
-  const page = Number(searchParams.page ?? 1) || 1;
-  const search = searchParams.search ?? '';
-  const status = searchParams.status ?? 'all';
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1) || 1;
+  const search = resolvedSearchParams.search ?? '';
+  const status = resolvedSearchParams.status ?? 'all';
 
   const [admin, { leads, total }] = await Promise.all([
     getCurrentAdmin(),

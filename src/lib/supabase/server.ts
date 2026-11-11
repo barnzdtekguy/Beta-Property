@@ -5,8 +5,8 @@ import type { Database } from '@/lib/types';
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 // Use in Server Components, Route Handlers, and Server Actions.
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

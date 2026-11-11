@@ -12,16 +12,18 @@ export default async function PropertyDetailPage({
   params,
   searchParams,
 }: {
-  params: { slug: string };
-  searchParams: { inquiry?: string };
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ inquiry?: string }>;
 }) {
-  const property = await getPublishedProperty(params.slug);
+  const resolvedSearchParams = await searchParams;
+  const { slug } = await params;
+  const property = await getPublishedProperty(slug);
   if (!property) notFound();
 
   const errorMessage =
-    searchParams.inquiry === 'invalid'
+    resolvedSearchParams.inquiry === 'invalid'
       ? 'Please check the form details and try again.'
-      : searchParams.inquiry === 'unavailable'
+      : resolvedSearchParams.inquiry === 'unavailable'
         ? 'We could not submit your inquiry. Please try again or contact our team.'
         : null;
   const location = [property.address, property.neighborhood, property.city, property.state, property.country]
@@ -181,7 +183,7 @@ export default async function PropertyDetailPage({
               {formatPropertyPrice(property.price, property.currency, property.listing_type)}
             </p>
             <p className="mt-3 text-sm leading-6 text-stone-500">Ask us a question or arrange a viewing with our team.</p>
-            {searchParams.inquiry === 'sent' ? (
+            {resolvedSearchParams.inquiry === 'sent' ? (
               <p role="status" className="mt-5 border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-800">
                 Thank you. Your inquiry has been sent to our team.
               </p>

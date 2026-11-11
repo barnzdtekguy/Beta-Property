@@ -162,7 +162,7 @@ export async function createProperty(formData: FormData) {
 
   const intent = String(formData.get('intent') ?? 'draft');
   const status = intent === 'publish' ? 'published' : 'draft';
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: property, error } = await supabase
     .from('properties')
     .insert({
@@ -193,7 +193,7 @@ export async function updateProperty(formData: FormData) {
   const parsed = parsePropertyFields(formData);
   if (!parsed.fields) fail(parsed.error ?? 'Check the property details.', path);
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: existing, error: lookupError } = await supabase
     .from('properties')
     .select('id, slug, status, published_at')
@@ -230,7 +230,7 @@ export async function changePropertyStatus(formData: FormData) {
   const status = String(formData.get('status') ?? '');
   if (!id || !PUBLICATION_STATUSES.includes(status)) fail('Invalid property publication status.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: property, error } = await supabase
     .from('properties')
     .update({ status, published_at: status === 'published' ? new Date().toISOString() : null })
@@ -255,7 +255,7 @@ export async function changePropertyAvailability(formData: FormData) {
   const availability = String(formData.get('availability_status') ?? '');
   if (!id || !AVAILABILITY_STATUSES.includes(availability)) fail('Invalid property availability status.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: property, error } = await supabase
     .from('properties')
     .update({ availability_status: availability })
@@ -279,7 +279,7 @@ export async function addPropertyImage(propertyId: string, storagePath: string, 
     return { ok: false as const, error: 'Invalid image upload path.' };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const [{ data: property }, { count }] = await Promise.all([
     supabase.from('properties').select('id, slug, title').eq('id', propertyId).maybeSingle(),
     supabase.from('property_images').select('id', { count: 'exact', head: true }).eq('property_id', propertyId),
@@ -320,7 +320,7 @@ export async function updatePropertyImageAltText(propertyId: string, imageId: st
   const safeAlt = altText.trim();
   if (safeAlt.length < 3 || safeAlt.length > 240) return { ok: false as const, error: 'Image descriptions must be 3–240 characters.' };
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: image, error } = await supabase
     .from('property_images')
     .update({ alt_text: safeAlt })
@@ -338,7 +338,7 @@ export async function setPropertyImageOrder(propertyId: string, imageIds: string
   if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
   if (!propertyId || new Set(imageIds).size !== imageIds.length) return { ok: false as const, error: 'The image order is invalid.' };
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: images, error: listError } = await supabase
     .from('property_images')
     .select('id')
@@ -363,7 +363,7 @@ export async function deletePropertyImage(propertyId: string, imageId: string) {
   const admin = await getCurrentAdmin();
   if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: image, error: lookupError } = await supabase
     .from('property_images')
     .select('id, storage_path')
@@ -399,7 +399,7 @@ export async function deleteProperty(formData: FormData) {
   const id = String(formData.get('property_id') ?? '');
   if (!id) fail('Property not found.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const [{ data: property, error: propertyError }, { data: images, error: imageError }] = await Promise.all([
     supabase.from('properties').select('id, slug').eq('id', id).maybeSingle(),
     supabase.from('property_images').select('storage_path').eq('property_id', id),
@@ -432,7 +432,7 @@ export async function assignPropertyToAgent(formData: FormData) {
   const agentId = String(formData.get('agent_id') ?? '');
   if (!propertyId || !agentId) fail('Select a property and an approved agent.');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: agent, error: agentError } = await supabase
     .from('users')
     .select('id')
@@ -462,7 +462,7 @@ export async function removePropertyAssignment(formData: FormData) {
 
   const assignmentId = String(formData.get('assignment_id') ?? '');
   if (!assignmentId) fail('Select an assignment to remove.');
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from('agent_property_assignments')
     .delete()

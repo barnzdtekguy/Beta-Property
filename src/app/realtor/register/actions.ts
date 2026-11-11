@@ -78,7 +78,7 @@ export async function registerUser(formData: FormData) {
   // only happens once they click the link and land on /auth/confirm.
   // Requires "Confirm email" to be turned on in Supabase Auth settings
   // (Auth → Providers → Email).
-  const authClient = createClient();
+  const authClient = await createClient();
   const { data: authData, error: authError } = await authClient.auth.signUp({
     email,
     password,

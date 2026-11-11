@@ -21,14 +21,16 @@ export default async function LeadDetailPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams?: { error?: string; success?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string; success?: string }>;
 }) {
+  const resolvedSearchParams = await searchParams;
+  const { id } = await params;
   const admin = await getCurrentAdmin();
 
   let lead;
   try {
-    lead = await getLeadById(params.id);
+    lead = await getLeadById(id);
   } catch {
     notFound();
   }
@@ -81,7 +83,7 @@ export default async function LeadDetailPage({
           )}
         </div>
 
-        <FlashMessage error={searchParams?.error ?? null} success={searchParams?.success ?? null} />
+        <FlashMessage error={resolvedSearchParams?.error ?? null} success={resolvedSearchParams?.success ?? null} />
 
         {lead.status === 'pending' && (
           <div className="grid gap-4 sm:grid-cols-2">

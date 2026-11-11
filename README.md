@@ -34,7 +34,8 @@ configured Supabase project:
    `supabase/migrations/007_real_estate_platform.sql`,
     `supabase/migrations/008_marketing_content.sql`,
     `supabase/migrations/009_property_management.sql`, and
-    `supabase/migrations/010_development_images.sql`, in that order.
+    `supabase/migrations/010_development_images.sql`, and
+    `supabase/migrations/011_security_hardening.sql`, in that order.
    The base `schema.sql` already includes the functionality from migrations
    002-004, so do not run those migrations again after the reset.
 5. In Supabase Authentication settings, enable email confirmations and set

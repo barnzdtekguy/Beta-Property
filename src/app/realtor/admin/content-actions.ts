@@ -67,7 +67,7 @@ export async function saveMarketingContent(formData: FormData) {
     returnTo(kind, '?error=check-fields');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   let previousCoverImagePath: string | null = null;
   let hasCoverImageColumn = Boolean(coverImagePath);
   if (id && kind === 'developments') {
@@ -146,7 +146,7 @@ export async function changeMarketingContentStatus(formData: FormData) {
     redirect(portalPath('/admin?error=invalid-content-status'));
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from(kind)
     .update({ status, published_at: status === 'published' ? new Date().toISOString() : null })

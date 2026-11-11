@@ -22,7 +22,7 @@ export async function applyForPayout(formData: FormData) {
     );
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: lead, error: leadErr } = await supabase
     .from('client_leads')

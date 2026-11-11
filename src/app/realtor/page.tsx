@@ -80,9 +80,10 @@ const NAV_LINKS = [
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { ref?: string };
+  searchParams: Promise<{ ref?: string }>;
 }) {
-  const ref = searchParams.ref ?? '';
+  const resolvedSearchParams = await searchParams;
+  const ref = resolvedSearchParams.ref ?? '';
   const referrerName = await resolveReferrer(ref);
   const registerHref = portalPath(ref ? `/register?ref=${encodeURIComponent(ref)}` : '/register');
 

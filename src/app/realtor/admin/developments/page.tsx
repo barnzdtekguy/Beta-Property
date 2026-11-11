@@ -2,10 +2,11 @@ import { MarketingContentManager } from '@/components/admin/marketing-content-ma
 
 export const dynamic = 'force-dynamic';
 
-export default function DevelopmentsAdminPage({
+export default async function DevelopmentsAdminPage({
   searchParams,
 }: {
-  searchParams: { error?: string; created?: string; saved?: string; published?: string };
+  searchParams: Promise<{ error?: string; created?: string; saved?: string; published?: string }>;
 }) {
-  return <MarketingContentManager kind="developments" searchParams={searchParams} />;
+  const resolvedSearchParams = await searchParams;
+  return <MarketingContentManager kind="developments" searchParams={resolvedSearchParams} />;
 }

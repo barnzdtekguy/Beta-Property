@@ -109,7 +109,7 @@ create index if not exists idx_commission_payments_status on commission_payments
 -- BUYER / INVESTOR INQUIRIES
 -- Public forms are available on the landing page for buyers and investors who
 -- may or may not have been referred by a realtor. Admins always see every
--- inquiry. Realtors only see inquiries tied to their own referral source.
+-- inquiry. Realtors only see inquiries assigned to them (policy in migration 007).
 -- A transaction must be completed before commission visibility is unlocked.
 -- ----------------------------------------------------------------------------
 create table if not exists inquiries (
@@ -258,10 +258,6 @@ create policy "Admins can insert inquiries"
 create policy "Admins can update inquiries"
   on inquiries for update
   using (is_admin());
-
-create policy "Realtors can read their own inquiries"
-  on inquiries for select
-  using (referred_by = current_realtor_id());
 
 -- ============================================================================
 -- Seed one admin manually after creating their auth user, e.g.:
