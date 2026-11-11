@@ -35,7 +35,8 @@ configured Supabase project:
     `supabase/migrations/008_marketing_content.sql`,
     `supabase/migrations/009_property_management.sql`, and
     `supabase/migrations/010_development_images.sql`, and
-    `supabase/migrations/011_security_hardening.sql`, in that order.
+    `supabase/migrations/011_security_hardening.sql`, and
+    `supabase/migrations/012_realtor_property_submissions.sql`, in that order.
    The base `schema.sql` already includes the functionality from migrations
    002-004, so do not run those migrations again after the reset.
 5. In Supabase Authentication settings, enable email confirmations and set
@@ -76,7 +77,7 @@ callback URL.
 ## Current scope
 - Complete animated homepage, mobile menu, accessible location tabs, property-category links and search navigation.
 - The landing page, `/about`, and `/services` present marketing content. `/admin` redirects to the protected admin portal at `/realtor/admin`; admins can manage properties, developments, and insights there. Published developments and insights appear at `/developments` and `/insights`.
-- Public `/properties` and `/contact` pages use the Supabase property and inquiry workflows. Admins can create, edit, publish, archive, mark availability, manage images, and assign properties; agents can view assigned listings and handle assigned inquiries.
+- Public `/properties` and `/contact` pages use the Supabase property and inquiry workflows. Approved realtors can submit and manage their own property listings and images while they are under review. Only admins can publish or archive listings; realtors can track review status and see the public link once a listing is published.
 - The header and mobile menu link directly to realtor registration at `/realtor/register`.
 - Working WhatsApp destination is centralised in `dist/app.js`: +234 907 944 0776, supplied in the brief and pending business confirmation.
 - No fabricated listings, prices, credentials or testimonials. Unsplash architecture/interior images are illustrative, explicitly identified on the page.

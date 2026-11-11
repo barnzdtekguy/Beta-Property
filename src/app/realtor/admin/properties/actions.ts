@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getCurrentAdmin } from '@/lib/queries';
+import { getCurrentRealtor } from '@/lib/realtor-queries';
 import { portalPath } from '@/lib/paths';
 import { createClient } from '@/lib/supabase/server';
 
@@ -47,6 +48,10 @@ type PropertyFields = {
 };
 
 function fail(message: string, path = '/admin/properties'): never {
+  redirect(portalPath(`${path}?error=${encodeURIComponent(message)}`));
+}
+
+function failRealtor(message: string, path = '/dashboard/properties/new'): never {
   redirect(portalPath(`${path}?error=${encodeURIComponent(message)}`));
 }
 
@@ -222,6 +227,75 @@ export async function updateProperty(formData: FormData) {
   redirect(portalPath(`${path}?updated=1`));
 }
 
+export async function submitRealtorProperty(formData: FormData) {
+  const realtor = await getCurrentRealtor();
+  if (!realtor) redirect(portalPath('/login?error=not-authorized'));
+
+  const parsed = parsePropertyFields(formData);
+  if (!parsed.fields) failRealtor(parsed.error ?? 'Check the property details.');
+
+  const supabase = await createClient();
+  const { data: property, error } = await supabase
+    .from('properties')
+    .insert({
+      ...parsed.fields,
+      status: 'pending_review',
+      published_at: null,
+      submitted_by: realtor.id,
+      created_by: null,
+    })
+    .select('id')
+    .single();
+
+  if (error || !property) {
+    console.error('[submitRealtorProperty] property submission failed:', error?.message ?? 'No property created');
+    failRealtor(error?.code === '23505' ? 'That property URL is already in use.' : 'The property could not be submitted. Check that migration 012 has been applied.');
+  }
+
+  revalidatePath(portalPath('/dashboard'));
+  revalidatePath(portalPath('/dashboard/properties'));
+  revalidatePath(portalPath('/admin/properties'));
+  redirect(portalPath(`/dashboard/properties/${property.id}?submitted=1#images`));
+}
+
+export async function updateRealtorProperty(formData: FormData) {
+  const realtor = await getCurrentRealtor();
+  if (!realtor) redirect(portalPath('/login?error=not-authorized'));
+
+  const id = String(formData.get('property_id') ?? '');
+  if (!id) failRealtor('Property not found.', '/dashboard/properties');
+  const path = `/dashboard/properties/${id}`;
+  const parsed = parsePropertyFields(formData);
+  if (!parsed.fields) failRealtor(parsed.error ?? 'Check the property details.', path);
+
+  const supabase = await createClient();
+  const { data: existing, error: lookupError } = await supabase
+    .from('properties')
+    .select('id, slug')
+    .eq('id', id)
+    .eq('submitted_by', realtor.id)
+    .eq('status', 'pending_review')
+    .maybeSingle();
+  if (lookupError || !existing) failRealtor('Only your properties awaiting review can be changed.', '/dashboard/properties');
+
+  const { error } = await supabase
+    .from('properties')
+    .update(parsed.fields)
+    .eq('id', id)
+    .eq('submitted_by', realtor.id)
+    .eq('status', 'pending_review');
+  if (error) {
+    console.error('[updateRealtorProperty] property update failed:', error.message);
+    failRealtor('The property details could not be saved.', path);
+  }
+
+  revalidatePropertyPages(existing.slug);
+  revalidatePropertyPages(parsed.fields.slug);
+  revalidatePath(portalPath('/dashboard'));
+  revalidatePath(portalPath('/dashboard/properties'));
+  redirect(portalPath(`${path}?updated=1`));
+}
+
 export async function changePropertyStatus(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect(portalPath('/admin/login?error=not-authorized'));
@@ -272,19 +346,34 @@ export async function changePropertyAvailability(formData: FormData) {
   redirect(portalPath('/admin/properties?updated=1'));
 }
 
-export async function addPropertyImage(propertyId: string, storagePath: string, altText: string) {
+async function getPropertyEditor(propertyId: string) {
   const admin = await getCurrentAdmin();
-  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+  const realtor = admin ? null : await getCurrentRealtor();
+  if (!admin && !realtor) return { ok: false as const, error: 'Your session has expired. Sign in again.' };
+
+  const supabase = await createClient();
+  let query = supabase
+    .from('properties')
+    .select('id, slug, title, submitted_by, status')
+    .eq('id', propertyId);
+  if (realtor) query = query.eq('submitted_by', realtor.id).eq('status', 'pending_review');
+  const { data: property, error } = await query.maybeSingle();
+  if (error || !property) return { ok: false as const, error: 'Property not found or no longer editable.' };
+  return { ok: true as const, supabase, property };
+}
+
+export async function addPropertyImage(propertyId: string, storagePath: string, altText: string) {
   if (!propertyId || !storagePath.startsWith(`${propertyId}/`) || storagePath.includes('..')) {
     return { ok: false as const, error: 'Invalid image upload path.' };
   }
 
-  const supabase = await createClient();
-  const [{ data: property }, { count }] = await Promise.all([
-    supabase.from('properties').select('id, slug, title').eq('id', propertyId).maybeSingle(),
-    supabase.from('property_images').select('id', { count: 'exact', head: true }).eq('property_id', propertyId),
-  ]);
-  if (!property) return { ok: false as const, error: 'Property not found.' };
+  const editor = await getPropertyEditor(propertyId);
+  if (!editor.ok) return editor;
+  const { supabase, property } = editor;
+  const { count } = await supabase
+    .from('property_images')
+    .select('id', { count: 'exact', head: true })
+    .eq('property_id', propertyId);
   if ((count ?? 0) >= MAX_PROPERTY_IMAGES) return { ok: false as const, error: `A property can have up to ${MAX_PROPERTY_IMAGES} images.` };
 
   const { data: lastImage } = await supabase
@@ -311,16 +400,17 @@ export async function addPropertyImage(propertyId: string, storagePath: string, 
   }
 
   revalidatePropertyPages(property.slug);
+  revalidatePath(portalPath(`/dashboard/properties/${propertyId}`));
   return { ok: true as const, image };
 }
 
 export async function updatePropertyImageAltText(propertyId: string, imageId: string, altText: string) {
-  const admin = await getCurrentAdmin();
-  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+  const editor = await getPropertyEditor(propertyId);
+  if (!editor.ok) return editor;
   const safeAlt = altText.trim();
   if (safeAlt.length < 3 || safeAlt.length > 240) return { ok: false as const, error: 'Image descriptions must be 3–240 characters.' };
 
-  const supabase = await createClient();
+  const { supabase } = editor;
   const { data: image, error } = await supabase
     .from('property_images')
     .update({ alt_text: safeAlt })
@@ -330,15 +420,16 @@ export async function updatePropertyImageAltText(propertyId: string, imageId: st
     .maybeSingle();
   if (error || !image) return { ok: false as const, error: 'The image description could not be saved.' };
   revalidatePath(portalPath(`/admin/properties/${propertyId}`));
+  revalidatePath(portalPath(`/dashboard/properties/${propertyId}`));
   return { ok: true as const };
 }
 
 export async function setPropertyImageOrder(propertyId: string, imageIds: string[]) {
-  const admin = await getCurrentAdmin();
-  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+  const editor = await getPropertyEditor(propertyId);
+  if (!editor.ok) return editor;
   if (!propertyId || new Set(imageIds).size !== imageIds.length) return { ok: false as const, error: 'The image order is invalid.' };
 
-  const supabase = await createClient();
+  const { supabase } = editor;
   const { data: images, error: listError } = await supabase
     .from('property_images')
     .select('id')
@@ -356,14 +447,15 @@ export async function setPropertyImageOrder(propertyId: string, imageIds: string
     if (error) return { ok: false as const, error: 'The image order could not be saved.' };
   }
   revalidatePath(portalPath(`/admin/properties/${propertyId}`));
+  revalidatePath(portalPath(`/dashboard/properties/${propertyId}`));
   return { ok: true as const };
 }
 
 export async function deletePropertyImage(propertyId: string, imageId: string) {
-  const admin = await getCurrentAdmin();
-  if (!admin) return { ok: false as const, error: 'Your admin session has expired. Sign in again.' };
+  const editor = await getPropertyEditor(propertyId);
+  if (!editor.ok) return editor;
 
-  const supabase = await createClient();
+  const { supabase } = editor;
   const { data: image, error: lookupError } = await supabase
     .from('property_images')
     .select('id, storage_path')
@@ -390,6 +482,7 @@ export async function deletePropertyImage(propertyId: string, imageId: string) {
     .order('sort_order', { ascending: true });
   if (remaining) await setPropertyImageOrder(propertyId, remaining.map((row) => row.id));
   revalidatePath(portalPath(`/admin/properties/${propertyId}`));
+  revalidatePath(portalPath(`/dashboard/properties/${propertyId}`));
   return { ok: true as const };
 }
 

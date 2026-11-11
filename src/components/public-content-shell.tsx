@@ -29,6 +29,9 @@ export function PublicHeader({ activePath }: { activePath?: string } = {}) {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <Link href="/realtor/register" className="hidden rounded-sm border border-stone-300 px-3 py-3 text-[10px] font-semibold transition hover:border-[#171719] sm:inline-flex">
+            Register as a realtor
+          </Link>
           <Link href="/contact" className="inline-flex items-center gap-3 rounded-sm bg-[#f32e37] px-4 py-3 text-[11px] font-semibold text-white transition hover:bg-[#d81e29] sm:px-5">
             Let’s talk <ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
           </Link>
@@ -57,6 +60,7 @@ export function PublicFooter() {
         <div className="space-y-3 text-sm">
           <h2 className="text-xs font-bold uppercase tracking-[0.16em] text-white/50">Let’s connect</h2>
           <a className="block hover:text-white/75" href="tel:+2349079440776">0907 944 0776</a>
+          <a className="block hover:text-white/75" href={`https://wa.me/2349079440776?text=${encodeURIComponent('Hello Beta Property, I would like to enquire about property opportunities in Lagos and Abuja.')}`} target="_blank" rel="noopener noreferrer">Chat on WhatsApp <ArrowUpRight aria-hidden="true" className="inline" size={14} /></a>
           <Link className="block hover:text-white/75" href="/contact">Talk to our team <ArrowUpRight aria-hidden="true" className="inline" size={14} /></Link>
           <span className="block text-white/55">Lagos &amp; Abuja, Nigeria</span>
         </div>
@@ -66,6 +70,7 @@ export function PublicFooter() {
         <div className="flex gap-5">
           <Link href="/privacy" className="hover:text-white">Privacy notice</Link>
           <Link href="/terms" className="hover:text-white">Terms of use</Link>
+          <a href="#" className="hover:text-white">Back to top</a>
         </div>
       </div>
     </footer>

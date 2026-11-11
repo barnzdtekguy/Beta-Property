@@ -16,7 +16,7 @@ export default async function DevelopmentsPage() {
 
   return (
     <main className="min-h-screen bg-white text-stone-900">
-      <PublicHeader />
+      <PublicHeader activePath="/developments" />
       <section className="mx-auto max-w-7xl px-5 py-14 md:py-20">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-700">Our developments</p>
         <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight sm:text-5xl">Places to build your next chapter.</h1>

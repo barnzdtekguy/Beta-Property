@@ -102,6 +102,18 @@ export async function getRealtorAssignedProperties(realtorId: string) {
   return (data ?? []).map((assignment) => assignment.property).filter(Boolean);
 }
 
+export async function getRealtorSubmittedProperties(realtorId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('properties')
+    .select('id, slug, title, status, property_type, listing_type, price, currency, city, state, created_at, updated_at')
+    .eq('submitted_by', realtorId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getRealtorAssignedInquiries(realtorId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

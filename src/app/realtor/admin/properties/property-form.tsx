@@ -45,10 +45,16 @@ export function PropertyForm({
   action,
   property,
   mode,
+  agentMode = false,
+  readOnly = false,
+  cancelHref,
 }: {
   action: PropertyFormAction;
   property?: PropertyFormValue;
   mode: 'create' | 'edit';
+  agentMode?: boolean;
+  readOnly?: boolean;
+  cancelHref?: string;
 }) {
   const amenities = new Set(property?.amenities ?? []);
 
@@ -56,6 +62,7 @@ export function PropertyForm({
     <form action={action} className="space-y-5">
       {property?.id && <input type="hidden" name="property_id" value={property.id} />}
 
+      <fieldset disabled={readOnly} className="contents">
       <section className="rounded-xl border border-border bg-card p-5 shadow-card md:p-6">
         <SectionTitle title="A. Property information" description="Give the listing a clear name and describe what makes it useful." />
         <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -174,14 +181,22 @@ export function PropertyForm({
           ))}
         </div>
       </section>
+      </fieldset>
 
       <div className="sticky bottom-0 z-10 -mx-6 flex flex-wrap items-center justify-between gap-3 border-t border-border bg-paper/95 px-6 py-4 backdrop-blur">
-        <Link href={portalPath('/admin/properties')} className="text-sm text-text-muted hover:text-text">Cancel</Link>
-        <div className="flex flex-wrap gap-2">
+        <Link href={cancelHref ?? (agentMode ? portalPath('/dashboard/properties') : portalPath('/admin/properties'))} className="text-sm text-text-muted hover:text-text">{readOnly ? 'Back to my properties' : 'Cancel'}</Link>
+        {!readOnly && <div className="flex flex-wrap gap-2">
+          {agentMode ? (
+            <button name="intent" value="submit" className="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-dark">{mode === 'create' ? 'Submit for admin review' : 'Save updates'}</button>
+          ) : (
+            <>
           {mode === 'edit' && <button name="intent" value="save" className="rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text hover:bg-black/5">Save changes</button>}
           <button name="intent" value="draft" className="rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text hover:bg-black/5">{mode === 'edit' && property?.status === 'published' ? 'Unpublish / save draft' : 'Save as draft'}</button>
           <button name="intent" value="publish" className="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-dark">{mode === 'create' ? 'Publish property' : 'Publish property'}</button>
+            </>
+          )}
         </div>
+        }
       </div>
     </form>
   );

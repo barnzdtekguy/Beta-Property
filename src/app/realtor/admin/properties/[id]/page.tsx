@@ -32,6 +32,10 @@ export default async function EditPropertyPage({
   ]);
   if (error || !property) notFound();
 
+  const { data: submitter } = property.submitted_by
+    ? await supabase.from('users').select('id, full_name, email, phone').eq('id', property.submitted_by).maybeSingle()
+    : { data: null };
+
   const images = await Promise.all(
     [...(property.property_images ?? [])]
       .sort((a, b) => a.sort_order - b.sort_order)
@@ -54,6 +58,15 @@ export default async function EditPropertyPage({
             {property.status === 'published' && <Link href={`/properties/${property.slug}`} target="_blank" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline">View public page <ArrowUpRight aria-hidden="true" size={14} strokeWidth={1.8} /></Link>}
           </div>
         </div>
+
+        {submitter && <section className="rounded-xl border border-border bg-card p-4 shadow-card">
+          <h2 className="font-display text-sm text-text">Submitted by realtor</h2>
+          <p className="mt-2 text-sm font-medium text-text">{submitter.full_name}</p>
+          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-muted">
+            <a className="hover:text-brand" href={`mailto:${submitter.email}`}>{submitter.email}</a>
+            {submitter.phone && <a className="hover:text-brand" href={`tel:${submitter.phone}`}>{submitter.phone}</a>}
+          </div>
+        </section>}
 
         {resolvedSearchParams.error && (
           <p role="alert" className="rounded-lg border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-danger">{resolvedSearchParams.error}</p>

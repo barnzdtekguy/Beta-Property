@@ -15,7 +15,7 @@ export default async function InsightsPage() {
 
   return (
     <main className="min-h-screen bg-white text-stone-900">
-      <PublicHeader />
+      <PublicHeader activePath="/insights" />
       <section className="mx-auto max-w-7xl px-5 py-14 md:py-20">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-700">The Beta Property journal</p>
         <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight sm:text-5xl">Insight for your next property decision.</h1>

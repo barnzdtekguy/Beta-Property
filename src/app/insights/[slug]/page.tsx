@@ -20,7 +20,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
 
   return (
     <main className="min-h-screen bg-white text-stone-900">
-      <PublicHeader />
+      <PublicHeader activePath="/insights" />
       <article className="mx-auto max-w-4xl px-5 py-12 md:py-20">
         <Link href="/insights" className="inline-flex items-center gap-2 text-sm font-medium text-red-700 hover:underline"><ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} /> All insights</Link>
         <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-red-700">{insight.category || 'Insights'}</p>

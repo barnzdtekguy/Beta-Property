@@ -21,7 +21,7 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
 
   return (
     <main className="min-h-screen bg-white text-stone-900">
-      <PublicHeader />
+      <PublicHeader activePath="/developments" />
       <article className="mx-auto max-w-4xl px-5 py-12 md:py-20">
         <Link href="/developments" className="inline-flex items-center gap-2 text-sm font-medium text-red-700 hover:underline"><ArrowLeft aria-hidden="true" size={16} strokeWidth={1.8} /> All developments</Link>
         <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-red-700">Development{development.location ? ` · ${development.location}` : ''}</p>

@@ -9,6 +9,7 @@ import {
   getRealtorOverrideEarnings,
   getRealtorLeads,
   getRealtorAssignedProperties,
+  getRealtorSubmittedProperties,
   getRealtorAssignedInquiries,
   getDownlineSalesActivity,
   getAnnouncements,
@@ -32,7 +33,7 @@ export default async function RealtorDashboardPage() {
   const realtor = await getCurrentRealtor();
   if (!realtor) redirect(portalPath('/login'));
 
-  const [stats, directReferrals, overrideEarnings, leads, downlineActivity, announcements, assignedProperties, assignedInquiries] =
+  const [stats, directReferrals, overrideEarnings, leads, downlineActivity, announcements, assignedProperties, assignedInquiries, submittedProperties] =
     await Promise.all([
       getRealtorStats(realtor.id),
       getRealtorDirectReferrals(realtor.id),
@@ -42,6 +43,7 @@ export default async function RealtorDashboardPage() {
       getAnnouncements(5),
       getRealtorAssignedProperties(realtor.id),
       getRealtorAssignedInquiries(realtor.id),
+      getRealtorSubmittedProperties(realtor.id),
     ]);
 
   return (
@@ -53,13 +55,17 @@ export default async function RealtorDashboardPage() {
           </h1>
           <p className="text-sm text-text-muted mt-0.5">Here&apos;s how your referrals are doing.</p>
         </div>
-        <Link
-          href={portalPath('/dashboard/leads')}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand text-white text-sm font-medium px-4 py-2.5 hover:bg-brand-dark transition"
-        >
-          <UserPlus size={15} strokeWidth={1.8} />
-          Submit a client
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href={portalPath('/dashboard/properties')} className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text hover:bg-black/5 transition">
+            My properties
+          </Link>
+          <Link href={portalPath('/dashboard/properties/new')} className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-dark transition">
+            Submit a property
+          </Link>
+          <Link href={portalPath('/dashboard/leads')} className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-medium text-text hover:bg-black/5 transition">
+            <UserPlus size={15} strokeWidth={1.8} /> Submit a client
+          </Link>
+        </div>
       </div>
 
       {announcements.length > 0 && <AnnouncementList announcements={announcements} />}
@@ -81,6 +87,34 @@ export default async function RealtorDashboardPage() {
       </div>
 
       <ReferralLinkCard code={realtor.referral_code} />
+
+      <section className="rounded-xl border border-border bg-card p-5 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-sm text-text">Your property submissions</h2>
+            <p className="mt-1 text-xs text-text-muted">Listings stay private until an admin approves and publishes them.</p>
+          </div>
+          <Link href={portalPath('/dashboard/properties')} className="text-xs font-medium text-brand hover:text-brand-dark">View all ({submittedProperties.length})</Link>
+        </div>
+        {submittedProperties.length ? (
+          <ul className="mt-4 divide-y divide-border">
+            {submittedProperties.slice(0, 3).map((property) => (
+              <li key={property.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <div>
+                  <Link href={portalPath(`/dashboard/properties/${property.id}`)} className="font-medium text-text hover:text-brand">{property.title}</Link>
+                  <p className="mt-1 text-xs capitalize text-text-muted">{property.city}{property.state ? `, ${property.state}` : ''} · {property.listing_type}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <StatusBadge status={property.status} />
+                  {property.status === 'published' ? (
+                    <Link href={`/properties/${property.slug}`} className="text-xs font-medium text-brand hover:underline">Approved · view listing</Link>
+                  ) : <span className="text-xs text-text-faint">Awaiting admin review</span>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : <p className="mt-4 rounded-lg bg-paper px-4 py-5 text-sm text-text-muted">You have not submitted a property yet.</p>}
+      </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-5 shadow-card">

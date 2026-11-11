@@ -1,6 +1,8 @@
 import { Logo } from '@/components/logo';
 import { getCurrentRealtor } from '@/lib/realtor-queries';
 import { initials } from '@/lib/utils';
+import Link from 'next/link';
+import { portalPath } from '@/lib/paths';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const realtor = await getCurrentRealtor();
@@ -15,6 +17,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             Beta Marketing
           </span>
         </div>
+
+        <nav aria-label="Realtor navigation" className="hidden items-center gap-4 text-sm sm:flex">
+          <Link href={portalPath('/dashboard')} className="text-text-muted hover:text-text">Dashboard</Link>
+          <Link href={portalPath('/dashboard/properties')} className="text-text-muted hover:text-text">My properties</Link>
+        </nav>
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2.5 pr-3 border-r border-border">

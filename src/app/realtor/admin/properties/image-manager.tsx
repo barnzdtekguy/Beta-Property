@@ -34,10 +34,12 @@ export function ImageManager({
   propertyId,
   propertyTitle,
   initialImages,
+  readOnly = false,
 }: {
   propertyId: string;
   propertyTitle: string;
   initialImages: StoredImage[];
+  readOnly?: boolean;
 }) {
   const [items, setItems] = useState<GalleryItem[]>(() => initialImages.map((image) => ({
     key: image.id,
@@ -193,6 +195,19 @@ export function ImageManager({
   }
 
   const progressPercent = uploadProgress.total ? Math.round((uploadProgress.current / uploadProgress.total) * 100) : 0;
+
+  if (readOnly) {
+    return (
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {items.length ? items.map((item, index) => (
+          <div key={item.key} className="relative aspect-[4/3] overflow-hidden rounded-lg border border-border bg-paper">
+            {item.url ? <Image src={item.url} alt={item.altText} fill unoptimized sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" /> : <div className="grid h-full place-items-center text-sm text-text-muted">Image unavailable</div>}
+            <span className="absolute left-2 top-2 rounded bg-black/70 px-2 py-1 text-xs font-medium text-white">{index === 0 ? 'Cover photo' : `Photo ${index + 1}`}</span>
+          </div>
+        )) : <p className="text-sm text-text-muted">No photos have been added to this property.</p>}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

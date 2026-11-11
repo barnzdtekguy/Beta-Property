@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { submitPropertyInquiry } from '@/app/properties/actions';
+import { PublicFooter, PublicHeader } from '@/components/public-content-shell';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,10 +12,11 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
       : null;
 
   return (
-    <main className="min-h-screen bg-white px-5 py-12 text-stone-900 md:py-20">
+    <>
+      <PublicHeader />
+      <main className="min-h-screen bg-white px-5 py-12 text-stone-900 md:py-20">
       <div className="mx-auto max-w-2xl">
-        <Link href="/" className="font-display text-lg font-semibold">Beta Property</Link>
-        <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-brand">Get in touch</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Get in touch</p>
         <h1 className="mt-3 font-display text-4xl font-semibold">Start a conversation.</h1>
         <p className="mt-3 text-sm leading-6 text-stone-600">Tell us what you’re looking for and the team will follow up using your preferred contact method.</p>
         {resolvedSearchParams.inquiry === 'sent' ? (
@@ -34,6 +35,8 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </form>
         )}
       </div>
-    </main>
+      </main>
+      <PublicFooter />
+    </>
   );
 }
