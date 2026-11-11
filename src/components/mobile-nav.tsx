@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Menu, X, ArrowRight } from 'lucide-react';
 
 export function MobileNav({
@@ -51,31 +52,33 @@ export function MobileNav({
 
             <nav className="mt-6 flex flex-col gap-1">
               {links.map((link) => (
-                <a
+                <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
                   className="px-2 py-2.5 rounded-lg text-sm text-text-muted hover:bg-black/[0.03] hover:text-text transition"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </nav>
 
             <div className="mt-auto space-y-3">
-              <a
+              <Link
                 href="/realtor/login"
+                onClick={() => setOpen(false)}
                 className="block text-center rounded-full border border-border px-4 py-2.5 text-sm font-medium text-text hover:border-brand hover:text-brand transition"
               >
                 Sign in
-              </a>
-              <a
+              </Link>
+              <Link
                 href={registerHref}
+                onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-dark transition"
               >
                 Get started
                 <ArrowRight size={15} />
-              </a>
+              </Link>
             </div>
           </div>
         </div>

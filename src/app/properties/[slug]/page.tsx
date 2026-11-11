@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowUpRight, Bath, BedDouble, CarFront, Check, MapPin, Rule
 import PropertySiteHeader from '@/components/property-site-header';
 import { getPublishedProperty, formatPropertyPrice } from '@/lib/properties';
 import { submitPropertyInquiry } from '@/app/properties/actions';
+import { PublicFooter } from '@/components/public-content-shell';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,7 +56,7 @@ export default async function PropertyDetailPage({
 
   return (
     <main className="min-h-screen bg-[#f8f7f5] text-[#171719]">
-      <PropertySiteHeader />
+      <PropertySiteHeader activePath="/properties" />
       <div className="mx-auto max-w-[1440px] px-5 pb-20 pt-7 sm:px-8 lg:px-12 lg:pt-9">
         <Link href="/properties" className="inline-flex items-center gap-2 text-xs font-semibold text-stone-500 transition hover:text-[#171719]">
           <ArrowLeft aria-hidden="true" size={15} /> All properties
@@ -193,6 +194,7 @@ export default async function PropertyDetailPage({
           </aside>
         </div>
       </div>
+      <PublicFooter />
     </main>
   );
 }

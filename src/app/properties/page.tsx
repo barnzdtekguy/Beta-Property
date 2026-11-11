@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight, BedDouble, MapPin, Ruler } from 'lucide-react';
 import PropertySiteHeader from '@/components/property-site-header';
+import { PublicFooter } from '@/components/public-content-shell';
 import { getPublishedProperties, type PropertyFilters, formatPropertyPrice } from '@/lib/properties';
 
 export const dynamic = 'force-dynamic';
@@ -163,6 +164,7 @@ export default async function PropertiesPage({
           </div>
         )}
       </section>
+      <PublicFooter />
     </main>
   );
 }
